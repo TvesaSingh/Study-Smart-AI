@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudySmart AI — Your intelligent study companion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef6ff', 100: '#d9ebff', 500: '#4387ff', 600: '#2563eb', 700: '#1d4ed8' },
+            ink: '#172033'
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          boxShadow: { soft: '0 20px 60px rgba(25, 53, 101, .10)' }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+    body { font-family: 'DM Sans', sans-serif; }
+    h1, h2, h3, h4, .display { font-family: 'Manrope', sans-serif; }
+    .view { display: none; animation: rise .25s ease-out; }
+    .view.active { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-link.active { background: #eef6ff; color: #2563eb; font-weight: 700; }
+    .dark .nav-link.active { background: rgba(67, 135, 255, .16); color: #8bb5ff; }
+    .ring-progress { transform: rotate(-90deg); transform-origin: 50% 50%; }
+    .toast { transform: translateY(20px); opacity: 0; pointer-events: none; transition: .25s; }
+    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .modal-backdrop { background: rgba(15, 23, 42, .46); }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-[#0d1424] dark:text-slate-100 transition-colors">
+  <div id="authScreen" class="min-h-screen grid lg:grid-cols-2 bg-white dark:bg-[#0d1424]">
+    <div class="hidden lg:flex relative overflow-hidden bg-gradient-to-br from-[#173d91] via-brand-600 to-[#65a7ff] p-12 text-white">
+      <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10"></div>
+      <div class="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-white/10"></div>
+      <div class="relative z-10 flex flex-col justify-between w-full">
+        <div class="flex items-center gap-3 text-xl font-bold"><span class="grid h-10 w-10 place-items-center rounded-xl bg-white/20">✦</span> StudySmart <span class="text-blue-200">AI</span></div>
+        <div class="max-w-lg">
+          <p class="mb-4 text-sm font-bold uppercase tracking-[.25em] text-blue-100">Study with intention</p>
+          <h1 class="text-5xl font-extrabold leading-tight">Turn your syllabus into a smarter study plan.</h1>
+          <p class="mt-6 text-lg leading-8 text-blue-100">A calm, focused workspace for planning, deep work, and seeing your progress.</p>
+          <div class="mt-10 flex items-center gap-3 text-sm text-blue-100"><span class="grid h-8 w-8 place-items-center rounded-full bg-white/20">✓</span> Save your progress locally and privately</div>
+        </div>
+        <p class="text-sm text-blue-100">Built for students who want to make every hour count.</p>
+      </div>
+    </div>
+    <div class="flex items-center justify-center p-6 sm:p-12">
+      <div class="w-full max-w-md">
+        <div class="mb-10 flex items-center gap-3 text-xl font-bold lg:hidden"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white">✦</span> StudySmart <span class="text-brand-600">AI</span></div>
+        <div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">WELCOME BACK</p><h2 class="text-3xl font-extrabold tracking-tight">Make progress feel simple.</h2><p class="mt-2 text-slate-500 dark:text-slate-400">Sign in to continue your study journey.</p></div>
+        <form id="authForm" class="space-y-4">
+          <label class="block text-sm font-semibold">Your name<input id="authName" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800" placeholder="Alex Johnson"></label>
+          <label class="block text-sm font-semibold">Email address<input id="authEmail" type="email" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800" placeholder="alex@example.com"></label>
+          <button class="w-full rounded-xl bg-brand-600 py-3.5 font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700">Continue to StudySmart <span class="ml-2">→</span></button>
+        </form>
+        <button id="guestBtn" class="mt-3 w-full rounded-xl border border-slate-200 py-3.5 font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Continue as Guest</button>
+        <p class="mt-8 text-center text-xs leading-5 text-slate-400">No account required. Your data stays in this browser using localStorage.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="appShell" class="hidden min-h-screen">
+    <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-[#111a2c] lg:flex">
+      <div class="mb-10 flex items-center gap-3 px-3 text-xl font-extrabold"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white">✦</span><span>StudySmart <em class="not-italic text-brand-600">AI</em></span></div>
+      <nav id="sidebarNav" class="space-y-1">
+        <button data-view="dashboard" class="nav-link active flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>⌂</span> Dashboard</button>
+        <button data-view="syllabus" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>▤</span> Syllabus</button>
+        <button data-view="schedule" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>◫</span> Schedule</button>
+        <button data-view="tasks" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>✓</span> Task manager</button>
+        <button data-view="focus" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>◷</span> Focus timer</button>
+        <button data-view="analytics" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>⌁</span> Analytics</button>
+      </nav>
+      <div class="mt-auto">
+        <button data-view="profile" class="nav-link mb-3 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>◉</span> Profile</button>
+        <div class="rounded-2xl bg-brand-50 p-4 dark:bg-brand-500/10"><p class="text-xs font-bold text-brand-700 dark:text-brand-300">STUDY TIP</p><p class="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-300">Small, consistent sessions beat last-minute cramming.</p></div>
+      </div>
+    </aside>
+    <main class="lg:pl-64">
+      <header class="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/90 px-5 backdrop-blur sm:px-8 dark:border-slate-800 dark:bg-[#0d1424]/90">
+        <div><p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Your workspace</p><h2 id="pageTitle" class="text-lg font-extrabold">Dashboard</h2></div>
+        <div class="flex items-center gap-2 sm:gap-4"><button id="themeBtn" class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 text-lg dark:border-slate-700" title="Toggle theme">☾</button><button id="logoutBtn" class="hidden text-sm font-semibold text-slate-500 hover:text-brand-600 sm:block">Log out</button><div id="avatar" class="grid h-10 w-10 place-items-center rounded-full bg-brand-100 font-bold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">A</div></div>
+      </header>
+      <div class="px-5 py-7 sm:px-8">
+        <div id="dashboard" class="view active"></div>
+        <div id="syllabus" class="view"></div>
+        <div id="schedule" class="view"></div>
+        <div id="tasks" class="view"></div>
+        <div id="focus" class="view"></div>
+        <div id="analytics" class="view"></div>
+        <div id="profile" class="view"></div>
+      </div>
+    </main>
+    <nav id="mobileNav" class="fixed bottom-0 left-0 right-0 z-30 flex justify-around border-t border-slate-200 bg-white/95 p-2 backdrop-blur dark:border-slate-800 dark:bg-[#111a2c]/95 lg:hidden"></nav>
+  </div>
+  <div id="toast" class="toast fixed bottom-6 right-6 z-50 max-w-xs rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-xl"></div>
+  <div id="modal" class="modal-backdrop fixed inset-0 z-40 hidden items-center justify-center p-5"><div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#172238]"><div id="modalContent"></div></div></div>
+
+  <script>
+    const defaultState = { user: null, theme: 'light', tasks: [], syllabus: '', dailyHours: 2, sessions: [], schedule: [] };
+    let state = JSON.parse(localStorage.getItem('studysmart-state') || 'null') || defaultState;
+    let timer = { seconds: 1500, running: false, interval: null };
+    const save = () => localStorage.setItem('studysmart-state', JSON.stringify(state));
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const today = () => new Date().toISOString().slice(0, 10);
+    const completed = () => state.tasks.filter(t => t.done).length;
+    const showToast = message => { const el = document.getElementById('toast'); el.textContent = message; el.classList.add('show'); clearTimeout(showToast.t); showToast.t = setTimeout(() => el.classList.remove('show'), 2600); };
+    const openModal = html => { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').classList.replace('hidden','flex'); };
+    const closeModal = () => document.getElementById('modal').classList.replace('flex','hidden');
+    document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+    function renderDashboard() {
+      const hours = state.sessions.reduce((sum, s) => sum + s.minutes / 60, 0);
+      const subjects = [...new Set(state.tasks.map(t => t.subject).filter(Boolean))].length;
+      document.getElementById('dashboard').innerHTML = `
+        <div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="mb-2 text-sm font-semibold text-brand-600">GOOD ${new Date().getHours() < 12 ? 'MORNING' : 'DAY'}, ${esc((state.user?.name || 'STUDENT').split(' ')[0].toUpperCase())} ✨</p><h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to make progress?</h1><p class="mt-2 text-slate-500 dark:text-slate-400">Here is your study snapshot for today.</p></div><button onclick="navigate('tasks')" class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700">+ Add a task</button></div>
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          ${statCard('🔥', 'Current streak', `${state.sessions.length ? Math.min(state.sessions.length + 2, 21) : 0} days`, 'Keep showing up', 'text-orange-500')}
+          ${statCard('◷', 'Study hours', `${hours.toFixed(1)}h`, 'Total focus time', 'text-brand-600')}
+          ${statCard('✓', 'Tasks completed', `${completed()}/${state.tasks.length}`, state.tasks.length ? `${Math.round(completed()/state.tasks.length*100)}% complete` : 'Add your first task', 'text-emerald-500')}
+          ${statCard('◈', 'Subjects', subjects || '0', 'Across your plan', 'text-violet-500')}
+        </div>
+        <div class="mt-6 grid gap-6 xl:grid-cols-5">
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] xl:col-span-3"><div class="mb-5 flex items-center justify-between"><div><h3 class="font-bold">Today’s focus</h3><p class="text-sm text-slate-500">Your next study actions</p></div><button onclick="navigate('schedule')" class="text-sm font-bold text-brand-600">View schedule →</button></div>${taskListHtml(state.tasks.filter(t => !t.done).slice(0,4), true) || empty('No active tasks yet', 'Upload your syllabus or add a task to begin.')}</div>
+          <div class="rounded-2xl bg-gradient-to-br from-brand-600 to-[#6d9cff] p-6 text-white shadow-soft xl:col-span-2"><p class="text-sm font-bold text-blue-100">WEEKLY MOMENTUM</p><h3 class="mt-3 text-2xl font-extrabold">You’re building a habit.</h3><p class="mt-2 text-sm leading-6 text-blue-100">Complete a 25-minute focus session today to keep your momentum going.</p><button onclick="navigate('focus')" class="mt-7 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700">Start focus session</button><div class="mt-8 h-2 rounded-full bg-white/30"><div class="h-full rounded-full bg-white" style="width:${Math.min(100, state.sessions.length * 18)}%"></div></div></div>
+        </div>`;
+    }
+    function statCard(icon, label, value, sub, color) { return `<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-[#111a2c]"><div class="flex items-start justify-between"><span class="text-2xl ${color}">${icon}</span><span class="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-bold uppercase text-slate-400 dark:bg-slate-800">Today</span></div><p class="mt-5 text-sm text-slate-500">${label}</p><p class="mt-1 text-2xl font-extrabold">${value}</p><p class="mt-1 text-xs text-slate-400">${sub}</p></div>`; }
+    function empty(title, text) { return `<div class="rounded-xl border border-dashed border-slate-200 p-8 text-center dark:border-slate-700"><p class="font-bold">${title}</p><p class="mt-1 text-sm text-slate-500">${text}</p></div>`; }
+    function taskListHtml(tasks, compact=false) { return tasks.map(t => `<div class="group flex items-center gap-3 border-b border-slate-100 py-3 last:border-0 dark:border-slate-800"><button onclick="toggleTask('${t.id}')" class="grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${t.done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600'} text-xs">${t.done ? '✓' : ''}</button><div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold ${t.done ? 'text-slate-400 line-through' : ''}">${esc(t.title)}</p><p class="mt-0.5 text-xs text-slate-400">${esc(t.subject || 'General')} · ${t.minutes || 25} min</p></div>${!compact ? `<button onclick="deleteTask('${t.id}')" class="text-slate-300 hover:text-red-500">×</button>` : ''}</div>`).join(''); }
+
+    function renderSyllabus() { document.getElementById('syllabus').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">SMART PLANNER</p><h1 class="text-3xl font-extrabold">Turn your syllabus into a plan.</h1><p class="mt-2 text-slate-500">Paste your topics below. StudySmart will turn each line into an actionable task.</p></div><div class="grid gap-6 lg:grid-cols-5"><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-3"><label class="text-sm font-bold">Paste syllabus or topic list<textarea id="syllabusText" rows="13" class="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800" placeholder="Week 1: Introduction to Biology&#10;Cell structure and function&#10;Genetics and inheritance&#10;...">${esc(state.syllabus)}</textarea></label><div class="mt-4 flex flex-wrap gap-3"><button onclick="parseSyllabus()" class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white hover:bg-brand-700">✦ Generate tasks</button><button onclick="document.getElementById('syllabusText').value=''" class="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold dark:border-slate-700">Clear</button></div></div><div class="rounded-2xl bg-brand-50 p-6 dark:bg-brand-500/10"><div class="grid h-11 w-11 place-items-center rounded-xl bg-brand-100 text-xl text-brand-600 dark:bg-brand-500/20">✎</div><h3 class="mt-5 text-lg font-bold">How it works</h3><ul class="mt-4 space-y-4 text-sm leading-6 text-slate-600 dark:text-slate-300"><li><b class="text-brand-600">01</b> Paste one topic or chapter per line.</li><li><b class="text-brand-600">02</b> We remove empty lines and tidy labels.</li><li><b class="text-brand-600">03</b> Review your new tasks in Task manager.</li></ul><div class="mt-8 rounded-xl bg-white/70 p-4 text-xs text-slate-500 dark:bg-slate-900/30"><b>Tip:</b> Include a subject with a colon, like “Math: Quadratic equations”.</div></div></div>`; }
+    function renderTasks() { document.getElementById('tasks').innerHTML = `<div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="mb-2 text-sm font-semibold text-brand-600">YOUR WORKLOAD</p><h1 class="text-3xl font-extrabold">Task manager</h1><p class="mt-2 text-slate-500">Make your next action visible.</p></div><button onclick="addTaskModal()" class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white hover:bg-brand-700">+ Add task</button></div><div class="grid gap-6 lg:grid-cols-3"><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-2"><div class="mb-5 flex items-center justify-between"><h3 class="font-bold">All tasks <span class="ml-1 text-sm font-normal text-slate-400">${state.tasks.length}</span></h3><span class="text-sm text-emerald-500">${completed()} completed</span></div>${taskListHtml(state.tasks) || empty('Your task list is clear', 'Add a task or generate one from your syllabus.')}</div><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c]"><h3 class="font-bold">Progress</h3><div class="mx-auto my-8 grid h-36 w-36 place-items-center rounded-full" style="background:conic-gradient(#4387ff ${state.tasks.length ? completed()/state.tasks.length*360 : 0}deg, #e2e8f0 0deg)"><div class="grid h-28 w-28 place-items-center rounded-full bg-white text-center dark:bg-[#111a2c]"><b class="text-2xl">${state.tasks.length ? Math.round(completed()/state.tasks.length*100) : 0}%</b><span class="text-xs text-slate-400">done</span></div></div><p class="text-center text-sm text-slate-500">Keep going, one task at a time.</p></div></div>`; }
+    function renderSchedule() { const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; document.getElementById('schedule').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">YOUR WEEK</p><h1 class="text-3xl font-extrabold">Schedule</h1><p class="mt-2 text-slate-500">A flexible view of your study rhythm.</p></div><div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">${days.map((d,i) => { const dayTasks = state.tasks.filter((_,idx) => idx % 7 === i).slice(0,3); return `<div class="min-h-48 rounded-2xl border ${i === (new Date().getDay()+6)%7 ? 'border-brand-500 ring-2 ring-brand-100 dark:ring-brand-500/20' : 'border-slate-200'} bg-white p-3 dark:border-slate-800 dark:bg-[#111a2c]"><div class="mb-4 flex items-center justify-between"><span class="text-sm font-bold">${d}</span>${i === (new Date().getDay()+6)%7 ? '<span class="h-2 w-2 rounded-full bg-brand-500"></span>' : ''}</div>${dayTasks.length ? dayTasks.map(t=>`<div class="mb-2 rounded-lg bg-brand-50 p-2 text-xs dark:bg-brand-500/10"><p class="font-bold">${esc(t.title)}</p><p class="mt-1 text-slate-400">${t.minutes||25} min</p></div>`).join('') : '<p class="text-xs text-slate-400">Open</p>'}</div>`; }).join('')}</div><div class="mt-6 rounded-2xl bg-slate-900 p-6 text-white dark:bg-slate-800"><div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p class="text-sm font-bold text-blue-300">TIME BLOCKING</p><h3 class="mt-1 text-lg font-bold">Protect your best study hours</h3></div><button onclick="navigate('focus')" class="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-900">Open focus timer</button></div></div>`; }
+    function renderFocus() { const m = String(Math.floor(timer.seconds/60)).padStart(2,'0'), s = String(timer.seconds%60).padStart(2,'0'); document.getElementById('focus').innerHTML = `<div class="mx-auto max-w-3xl"><div class="mb-8 text-center"><p class="mb-2 text-sm font-semibold text-brand-600">DEEP WORK</p><h1 class="text-3xl font-extrabold">Focus timer</h1><p class="mt-2 text-slate-500">One 25-minute session. No multitasking.</p></div><div class="rounded-3xl bg-gradient-to-br from-[#173d91] to-brand-500 p-8 text-center text-white shadow-soft sm:p-14"><div class="relative mx-auto grid h-64 w-64 place-items-center rounded-full border-[12px] border-white/20"><div class="absolute inset-0 rounded-full border-[12px] border-white border-l-transparent border-b-transparent ring-progress"></div><div><p class="text-6xl font-extrabold tracking-tight">${m}:${s}</p><p class="mt-2 text-sm text-blue-100">${timer.running ? 'Stay in the zone' : 'Ready when you are'}</p></div></div><div class="mt-9 flex justify-center gap-3"><button onclick="toggleTimer()" class="rounded-xl bg-white px-7 py-3 font-bold text-brand-700">${timer.running ? 'Pause' : 'Start session'}</button><button onclick="resetTimer()" class="rounded-xl bg-white/15 px-5 py-3 font-bold hover:bg-white/25">Reset</button></div></div><div class="mt-6 grid gap-4 sm:grid-cols-3">${[['25','Focus'],['5','Short break'],['15','Long break']].map(x=>`<div class="rounded-xl border border-slate-200 bg-white p-4 text-center dark:border-slate-800 dark:bg-[#111a2c]"><p class="text-xl font-extrabold">${x[0]} min</p><p class="mt-1 text-xs text-slate-400">${x[1]}</p></div>`).join('')}</div></div>`; }
+    function renderAnalytics() { document.getElementById('analytics').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">INSIGHTS</p><h1 class="text-3xl font-extrabold">Analytics</h1><p class="mt-2 text-slate-500">A clearer picture of your consistency.</p></div><div class="grid gap-6 lg:grid-cols-5"><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-3"><h3 class="font-bold">Study hours</h3><p class="mb-4 text-sm text-slate-500">Your weekly focus activity</p><canvas id="barChart" height="220"></canvas></div><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-2"><h3 class="font-bold">Task distribution</h3><p class="mb-4 text-sm text-slate-500">Completed vs remaining</p><canvas id="doughnutChart" height="220"></canvas></div></div>`; setTimeout(drawCharts, 0); }
+    function drawCharts() { if (!window.Chart) return; const color = document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#64748b'; new Chart(document.getElementById('barChart'), { type:'bar', data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ label:'Hours', data:[.8,1.3,.5,1.8,.9,1.2,.4], backgroundColor:'#4387ff', borderRadius:7 }] }, options:{ plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{color:'rgba(148,163,184,.15)'}, ticks:{color}},x:{grid:{display:false},ticks:{color}}} } }); new Chart(document.getElementById('doughnutChart'), { type:'doughnut', data:{labels:['Completed','Remaining'],datasets:[{data:[completed(),Math.max(state.tasks.length-completed(),0)],backgroundColor:['#34d399','#dbeafe'],borderWidth:0}]},options:{cutout:'72%',plugins:{legend:{position:'bottom',labels:{color,padding:18}}}}}); }
+    function renderProfile() { document.getElementById('profile').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">YOUR ACCOUNT</p><h1 class="text-3xl font-extrabold">Profile</h1><p class="mt-2 text-slate-500">Personalize your study experience.</p></div><div class="max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c]"><div class="flex items-center gap-4 border-b border-slate-100 pb-6 dark:border-slate-800"><div class="grid h-16 w-16 place-items-center rounded-2xl bg-brand-100 text-2xl font-extrabold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">${esc((state.user?.name||'S')[0].toUpperCase())}</div><div><h3 class="text-xl font-extrabold">${esc(state.user?.name || 'Student')}</h3><p class="text-sm text-slate-500">${esc(state.user?.email || 'Guest mode')}</p></div></div><form id="profileForm" class="mt-6 space-y-5"><label class="block text-sm font-bold">Full name<input id="profileName" value="${esc(state.user?.name||'')}" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"></label><label class="block text-sm font-bold">Daily study goal <span class="font-normal text-slate-400">(hours)</span><input id="profileHours" type="number" min="0.5" max="16" step=".5" value="${state.dailyHours}" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"></label><button class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white hover:bg-brand-700">Save profile</button></form></div>`; document.getElementById('profileForm').onsubmit = e => { e.preventDefault(); state.user.name = document.getElementById('profileName').value.trim() || 'Student'; state.dailyHours = Number(document.getElementById('profileHours').value) || 2; save(); updateUserUi(); showToast('Profile saved'); }; }
+    function addTaskModal() { openModal(`<h3 class="text-xl font-extrabold">Add a task</h3><p class="mt-1 text-sm text-slate-500">What would you like to accomplish?</p><form id="taskForm" class="mt-5 space-y-4"><input id="newTitle" required autofocus placeholder="e.g. Review chapter 3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"><input id="newSubject" placeholder="Subject (optional)" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"><div class="flex justify-end gap-2"><button type="button" onclick="closeModal()" class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500">Cancel</button><button class="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white">Add task</button></div></form>`); document.getElementById('taskForm').onsubmit = e => { e.preventDefault(); state.tasks.unshift({id: crypto.randomUUID(), title: document.getElementById('newTitle').value.trim(), subject: document.getElementById('newSubject').value.trim() || 'General', minutes:25, done:false}); save(); closeModal(); renderAll(); showToast('Task added'); }; }
+    function parseSyllabus() { const text = document.getElementById('syllabusText').value; const lines = text.split(/\n/).map(x=>x.replace(/^[-*•\d.)\s]+/,'').trim()).filter(Boolean); if (!lines.length) { showToast('Paste at least one topic first'); return; } state.syllabus=text; lines.forEach(line => { const parts=line.split(':'); state.tasks.push({id:crypto.randomUUID(), title:(parts.length>1?parts.slice(1).join(':'):line).trim(), subject:parts.length>1?parts[0].trim():'Syllabus', minutes:25, done:false}); }); save(); renderAll(); navigate('tasks'); showToast(`${lines.length} tasks created from your syllabus`); }
+    function toggleTask(id) { const t=state.tasks.find(x=>x.id===id); if(t) t.done=!t.done; save(); renderAll(); }
+    function deleteTask(id) { state.tasks=state.tasks.filter(t=>t.id!==id); save(); renderAll(); showToast('Task deleted'); }
+    function toggleTimer() { if(timer.running){clearInterval(timer.interval);timer.running=false;} else {timer.running=true;timer.interval=setInterval(()=>{timer.seconds--;if(timer.seconds<=0){clearInterval(timer.interval);timer.running=false;state.sessions.push({date:today(),minutes:25});save();showToast('Focus session complete!');}renderFocus();},1000);} renderFocus(); }
+    function resetTimer() { clearInterval(timer.interval); timer={seconds:1500,running:false,interval:null}; renderFocus(); }
+    function navigate(view) { document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id===view)); document.querySelectorAll('.nav-link').forEach(el=>el.classList.toggle('active',el.dataset.view===view)); document.getElementById('pageTitle').textContent=view==='tasks'?'Task manager':view[0].toUpperCase()+view.slice(1); if(view==='analytics') drawCharts(); }
+    function renderAll() { renderDashboard();renderSyllabus();renderTasks();renderSchedule();renderFocus();renderAnalytics();renderProfile(); }
+    function updateUserUi() { document.getElementById('avatar').textContent=(state.user?.name||'S')[0].toUpperCase(); }
+    document.getElementById('authForm').onsubmit = e => { e.preventDefault(); state.user={name:document.getElementById('authName').value.trim(),email:document.getElementById('authEmail').value.trim()}; startApp(); };
+    document.getElementById('guestBtn').onclick = () => { state.user={name:'Guest student',email:'Guest mode'}; startApp(); };
+    function startApp() { save(); document.getElementById('authScreen').classList.add('hidden');document.getElementById('appShell').classList.remove('hidden');updateUserUi();renderAll(); }
+    document.getElementById('logoutBtn').onclick=()=>{state.user=null;save();document.getElementById('appShell').classList.add('hidden');document.getElementById('authScreen').classList.remove('hidden');};
+    document.getElementById('themeBtn').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';document.documentElement.classList.toggle('dark',state.theme==='dark');save();renderAll();};
+    document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.view)));
+    const mobileItems=[['dashboard','⌂'],['tasks','✓'],['focus','◷'],['analytics','⌁'],['profile','◉']]; document.getElementById('mobileNav').innerHTML=mobileItems.map(([v,i])=>`<button data-view="${v}" class="nav-link flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-[10px]"><span class="text-lg">${i}</span>${v[0].toUpperCase()+v.slice(1)}</button>`).join(''); document.querySelectorAll('#mobileNav [data-view]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.view)));
+    document.documentElement.classList.toggle('dark',state.theme==='dark');
+    if(state.user) startApp();
+  </script>
+</body>
+</html>
