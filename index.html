@@ -1,169 +1,1438 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StudySmart AI — Your intelligent study companion</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50: '#eef6ff', 100: '#d9ebff', 500: '#4387ff', 600: '#2563eb', 700: '#1d4ed8' },
-            ink: '#172033'
-          },
-          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
-          boxShadow: { soft: '0 20px 60px rgba(25, 53, 101, .10)' }
-        }
-      }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-  <style>
-    * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
-    body { font-family: 'DM Sans', sans-serif; }
-    h1, h2, h3, h4, .display { font-family: 'Manrope', sans-serif; }
-    .view { display: none; animation: rise .25s ease-out; }
-    .view.active { display: block; }
-    @keyframes rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
-    .nav-link.active { background: #eef6ff; color: #2563eb; font-weight: 700; }
-    .dark .nav-link.active { background: rgba(67, 135, 255, .16); color: #8bb5ff; }
-    .ring-progress { transform: rotate(-90deg); transform-origin: 50% 50%; }
-    .toast { transform: translateY(20px); opacity: 0; pointer-events: none; transition: .25s; }
-    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    .modal-backdrop { background: rgba(15, 23, 42, .46); }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StudySmart AI – Plan. Focus. Achieve.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: #6C63FF;
+    --primary-dark: #5A52D4;
+    --secondary: #FF6B6B;
+    --success: #4ECDC4;
+    --warning: #FFD93D;
+    --bg: #F8F9FA;
+    --card: #FFFFFF;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #E8EAED;
+  }
+
+  body.dark {
+    --bg: #0F0F1E;
+    --card: #1A1A2E;
+    --text: #F8F9FA;
+    --muted: #A0A4B8;
+    --border: #2A2A3E;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    transition: background 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+  }
+
+  .hidden { display: none !important; }
+
+  /* ====== NAVBAR ====== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+  }
+
+  body.dark nav { background: rgba(15,15,30,0.9); }
+
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    list-style: none;
+  }
+
+  .nav-links a, .nav-links button {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links button:hover { color: var(--primary); }
+
+  .nav-links button.active { color: var(--primary); font-weight: 700; }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text);
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 14px rgba(108,99,255,0.3);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+  .btn-sm { padding: 8px 16px; font-size: 14px; }
+
+  /* ====== LANDING PAGE ====== */
+  .hero {
+    padding: 140px 24px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(108,99,255,0.1);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -1.5px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    max-width: 520px;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat h3 { font-size: 28px; font-weight: 800; color: var(--primary); }
+  .hero-stat p { font-size: 13px; color: var(--muted); margin: 0; }
+
+  .mockup {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .mockup-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    padding: 14px 20px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .mockup-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+  }
+
+  .mockup-body { padding: 24px; }
+
+  .mockup-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+
+  .mockup-card {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid var(--primary);
+  }
+
+  .mockup-card .info p:first-child { font-size: 13px; font-weight: 600; }
+  .mockup-card .info p:last-child { font-size: 11px; color: var(--muted); }
+
+  .mockup-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .badge-high { background: #FFE5E5; color: #D63031; }
+  .badge-med { background: #FFF4D6; color: #B8860B; }
+  .badge-done { background: #D5F5EE; color: #0B8A6E; }
+
+  section { padding: 80px 24px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .section-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 60px;
+  }
+
+  .section-tag {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+  }
+
+  .section-header h2 {
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  .section-header p { font-size: 17px; color: var(--muted); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    transition: all 0.3s;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    border-color: var(--primary);
+  }
+
+  .feature-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: rgba(108,99,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
+
+  .feature-card h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+  .feature-card p { color: var(--muted); font-size: 15px; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 32px;
+  }
+
+  .step { text-align: center; }
+
+  .step-number {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    font-size: 24px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 10px 24px rgba(108,99,255,0.3);
+  }
+
+  .step h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+  .step p { color: var(--muted); font-size: 15px; }
+
+  .cta {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    color: white;
+  }
+
+  .cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; }
+  .cta p { font-size: 17px; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .cta .btn { background: white; color: var(--primary); }
+
+  footer {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 48px 24px 24px;
+    margin-top: 80px;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .footer-brand p { color: var(--muted); font-size: 14px; margin-top: 12px; max-width: 300px; }
+  .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a { color: var(--muted); text-decoration: none; font-size: 14px; }
+  .footer-col a:hover { color: var(--primary); }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ====== AUTH SCREEN ====== */
+  .auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,107,107,0.1));
+  }
+
+  .auth-box {
+    background: var(--card);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid var(--border);
+  }
+
+  .auth-box h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .auth-box .subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  .auth-tabs {
+    display: flex;
+    margin-bottom: 24px;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  .auth-tabs button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--muted);
+  }
+
+  .auth-tabs button.active {
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    transition: border 0.2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  /* ====== APP ====== */
+  .app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 24px 40px;
+  }
+
+  .page { animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .page-subtitle {
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .stat-card p:first-child { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .stat-card p:last-child { font-size: 24px; font-weight: 800; color: var(--primary); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    background: var(--bg);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--primary);
+  }
+
+  .task-item.completed { opacity: 0.6; border-left-color: var(--success); }
+
+  .task-item .task-info p:first-child { font-weight: 600; font-size: 15px; }
+  .task-item .task-info p:last-child { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .task-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    margin-left: 8px;
+  }
+
+  .task-actions { display: flex; gap: 6px; }
+
+  .task-actions button {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+  }
+
+  .btn-done { background: var(--success); color: white; }
+  .btn-done:hover { opacity: 0.9; }
+  .btn-delete { background: #FFE5E5; color: #D63031; }
+
+  textarea.form-input { resize: vertical; min-height: 100px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* Focus Timer */
+  .timer-display {
+    font-size: 80px;
+    font-weight: 800;
+    color: var(--primary);
+    text-align: center;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+    margin: 20px 0;
+  }
+
+  .timer-controls { display: flex; justify-content: center; gap: 12px; }
+
+  /* Analytics */
+  .chart-container {
+    position: relative;
+    height: 280px;
+  }
+
+  .ai-recommendation {
+    background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,107,107,0.1));
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 15px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--primary);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: slideUp 0.3s ease;
+    font-weight: 600;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Mobile nav */
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    padding: 8px;
+    justify-content: space-around;
+  }
+
+  .mobile-nav button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mobile-nav button.active { color: var(--primary); }
+  .mobile-nav button span:first-child { font-size: 20px; }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 120px; }
+    .hero h1 { font-size: 42px; }
+    .hero-visual { order: -1; }
+    .nav-links { display: none; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .mobile-nav { display: flex; }
+    .app-container { padding-bottom: 100px; }
+  }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 32px; }
+    .section-header h2 { font-size: 28px; }
+    .cta { padding: 40px 24px; }
+    .cta h2 { font-size: 26px; }
+    .footer-inner { grid-template-columns: 1fr; }
+    .timer-display { font-size: 56px; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate { opacity: 0; animation: fadeUp 0.8s ease forwards; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+</style>
 </head>
-<body class="h-full bg-slate-50 text-slate-800 dark:bg-[#0d1424] dark:text-slate-100 transition-colors">
-  <div id="authScreen" class="min-h-screen grid lg:grid-cols-2 bg-white dark:bg-[#0d1424]">
-    <div class="hidden lg:flex relative overflow-hidden bg-gradient-to-br from-[#173d91] via-brand-600 to-[#65a7ff] p-12 text-white">
-      <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10"></div>
-      <div class="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-white/10"></div>
-      <div class="relative z-10 flex flex-col justify-between w-full">
-        <div class="flex items-center gap-3 text-xl font-bold"><span class="grid h-10 w-10 place-items-center rounded-xl bg-white/20">✦</span> StudySmart <span class="text-blue-200">AI</span></div>
-        <div class="max-w-lg">
-          <p class="mb-4 text-sm font-bold uppercase tracking-[.25em] text-blue-100">Study with intention</p>
-          <h1 class="text-5xl font-extrabold leading-tight">Turn your syllabus into a smarter study plan.</h1>
-          <p class="mt-6 text-lg leading-8 text-blue-100">A calm, focused workspace for planning, deep work, and seeing your progress.</p>
-          <div class="mt-10 flex items-center gap-3 text-sm text-blue-100"><span class="grid h-8 w-8 place-items-center rounded-full bg-white/20">✓</span> Save your progress locally and privately</div>
-        </div>
-        <p class="text-sm text-blue-100">Built for students who want to make every hour count.</p>
-      </div>
-    </div>
-    <div class="flex items-center justify-center p-6 sm:p-12">
-      <div class="w-full max-w-md">
-        <div class="mb-10 flex items-center gap-3 text-xl font-bold lg:hidden"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white">✦</span> StudySmart <span class="text-brand-600">AI</span></div>
-        <div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">WELCOME BACK</p><h2 class="text-3xl font-extrabold tracking-tight">Make progress feel simple.</h2><p class="mt-2 text-slate-500 dark:text-slate-400">Sign in to continue your study journey.</p></div>
-        <form id="authForm" class="space-y-4">
-          <label class="block text-sm font-semibold">Your name<input id="authName" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800" placeholder="Alex Johnson"></label>
-          <label class="block text-sm font-semibold">Email address<input id="authEmail" type="email" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800" placeholder="alex@example.com"></label>
-          <button class="w-full rounded-xl bg-brand-600 py-3.5 font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700">Continue to StudySmart <span class="ml-2">→</span></button>
-        </form>
-        <button id="guestBtn" class="mt-3 w-full rounded-xl border border-slate-200 py-3.5 font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Continue as Guest</button>
-        <p class="mt-8 text-center text-xs leading-5 text-slate-400">No account required. Your data stays in this browser using localStorage.</p>
-      </div>
+<body>
+
+<!-- ====== NAVBAR (appears on both landing & app) ====== -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" onclick="goHome()">
+      <div class="logo-icon">S</div>
+      StudySmart AI
+    </a>
+    <ul class="nav-links" id="mainNav">
+      <li><a onclick="goHome()" href="#top">Home</a></li>
+      <li><a href="#features" onclick="goHome()">Features</a></li>
+      <li><a href="#how" onclick="goHome()">How It Works</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+      <button id="navAuthBtn" class="btn btn-primary btn-sm" onclick="scrollToApp()">Get Started</button>
+      <button id="navLogoutBtn" class="btn btn-outline btn-sm hidden" onclick="logout()">Logout</button>
     </div>
   </div>
+</nav>
 
-  <div id="appShell" class="hidden min-h-screen">
-    <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-[#111a2c] lg:flex">
-      <div class="mb-10 flex items-center gap-3 px-3 text-xl font-extrabold"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-white">✦</span><span>StudySmart <em class="not-italic text-brand-600">AI</em></span></div>
-      <nav id="sidebarNav" class="space-y-1">
-        <button data-view="dashboard" class="nav-link active flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>⌂</span> Dashboard</button>
-        <button data-view="syllabus" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>▤</span> Syllabus</button>
-        <button data-view="schedule" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>◫</span> Schedule</button>
-        <button data-view="tasks" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>✓</span> Task manager</button>
-        <button data-view="focus" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>◷</span> Focus timer</button>
-        <button data-view="analytics" class="nav-link flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>⌁</span> Analytics</button>
-      </nav>
-      <div class="mt-auto">
-        <button data-view="profile" class="nav-link mb-3 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm"><span>◉</span> Profile</button>
-        <div class="rounded-2xl bg-brand-50 p-4 dark:bg-brand-500/10"><p class="text-xs font-bold text-brand-700 dark:text-brand-300">STUDY TIP</p><p class="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-300">Small, consistent sessions beat last-minute cramming.</p></div>
+<!-- ====== LANDING PAGE ====== -->
+<div id="landingPage">
+
+  <section class="hero" id="top">
+    <div class="hero-content">
+      <div class="hero-badge animate">✨ AI-Powered Study Planner</div>
+      <h1 class="animate delay-1">Study Smarter,<br/><span>Not Harder.</span></h1>
+      <p class="animate delay-2">Upload your syllabus, get a personalized study schedule, track your progress, and stay focused — all in one place.</p>
+      <div class="hero-buttons animate delay-3">
+        <button class="btn btn-primary" onclick="scrollToApp()">🚀 Try It Free</button>
+        <a href="#features" class="btn btn-outline">Learn More</a>
       </div>
-    </aside>
-    <main class="lg:pl-64">
-      <header class="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/90 px-5 backdrop-blur sm:px-8 dark:border-slate-800 dark:bg-[#0d1424]/90">
-        <div><p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Your workspace</p><h2 id="pageTitle" class="text-lg font-extrabold">Dashboard</h2></div>
-        <div class="flex items-center gap-2 sm:gap-4"><button id="themeBtn" class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 text-lg dark:border-slate-700" title="Toggle theme">☾</button><button id="logoutBtn" class="hidden text-sm font-semibold text-slate-500 hover:text-brand-600 sm:block">Log out</button><div id="avatar" class="grid h-10 w-10 place-items-center rounded-full bg-brand-100 font-bold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">A</div></div>
-      </header>
-      <div class="px-5 py-7 sm:px-8">
-        <div id="dashboard" class="view active"></div>
-        <div id="syllabus" class="view"></div>
-        <div id="schedule" class="view"></div>
-        <div id="tasks" class="view"></div>
-        <div id="focus" class="view"></div>
-        <div id="analytics" class="view"></div>
-        <div id="profile" class="view"></div>
+      <div class="hero-stats animate delay-4">
+        <div class="hero-stat"><h3>86%</h3><p>Students procrastinate</p></div>
+        <div class="hero-stat"><h3>3x</h3><p>Better time management</p></div>
+        <div class="hero-stat"><h3>100%</h3><p>Free forever</p></div>
       </div>
-    </main>
-    <nav id="mobileNav" class="fixed bottom-0 left-0 right-0 z-30 flex justify-around border-t border-slate-200 bg-white/95 p-2 backdrop-blur dark:border-slate-800 dark:bg-[#111a2c]/95 lg:hidden"></nav>
-  </div>
-  <div id="toast" class="toast fixed bottom-6 right-6 z-50 max-w-xs rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-xl"></div>
-  <div id="modal" class="modal-backdrop fixed inset-0 z-40 hidden items-center justify-center p-5"><div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#172238]"><div id="modalContent"></div></div></div>
-
-  <script>
-    const defaultState = { user: null, theme: 'light', tasks: [], syllabus: '', dailyHours: 2, sessions: [], schedule: [] };
-    let state = JSON.parse(localStorage.getItem('studysmart-state') || 'null') || defaultState;
-    let timer = { seconds: 1500, running: false, interval: null };
-    const save = () => localStorage.setItem('studysmart-state', JSON.stringify(state));
-    const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-    const today = () => new Date().toISOString().slice(0, 10);
-    const completed = () => state.tasks.filter(t => t.done).length;
-    const showToast = message => { const el = document.getElementById('toast'); el.textContent = message; el.classList.add('show'); clearTimeout(showToast.t); showToast.t = setTimeout(() => el.classList.remove('show'), 2600); };
-    const openModal = html => { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').classList.replace('hidden','flex'); };
-    const closeModal = () => document.getElementById('modal').classList.replace('flex','hidden');
-    document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
-
-    function renderDashboard() {
-      const hours = state.sessions.reduce((sum, s) => sum + s.minutes / 60, 0);
-      const subjects = [...new Set(state.tasks.map(t => t.subject).filter(Boolean))].length;
-      document.getElementById('dashboard').innerHTML = `
-        <div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="mb-2 text-sm font-semibold text-brand-600">GOOD ${new Date().getHours() < 12 ? 'MORNING' : 'DAY'}, ${esc((state.user?.name || 'STUDENT').split(' ')[0].toUpperCase())} ✨</p><h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to make progress?</h1><p class="mt-2 text-slate-500 dark:text-slate-400">Here is your study snapshot for today.</p></div><button onclick="navigate('tasks')" class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700">+ Add a task</button></div>
-        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          ${statCard('🔥', 'Current streak', `${state.sessions.length ? Math.min(state.sessions.length + 2, 21) : 0} days`, 'Keep showing up', 'text-orange-500')}
-          ${statCard('◷', 'Study hours', `${hours.toFixed(1)}h`, 'Total focus time', 'text-brand-600')}
-          ${statCard('✓', 'Tasks completed', `${completed()}/${state.tasks.length}`, state.tasks.length ? `${Math.round(completed()/state.tasks.length*100)}% complete` : 'Add your first task', 'text-emerald-500')}
-          ${statCard('◈', 'Subjects', subjects || '0', 'Across your plan', 'text-violet-500')}
+    </div>
+    <div class="hero-visual animate delay-2">
+      <div class="mockup">
+        <div class="mockup-header">
+          <div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div>
         </div>
-        <div class="mt-6 grid gap-6 xl:grid-cols-5">
-          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] xl:col-span-3"><div class="mb-5 flex items-center justify-between"><div><h3 class="font-bold">Today’s focus</h3><p class="text-sm text-slate-500">Your next study actions</p></div><button onclick="navigate('schedule')" class="text-sm font-bold text-brand-600">View schedule →</button></div>${taskListHtml(state.tasks.filter(t => !t.done).slice(0,4), true) || empty('No active tasks yet', 'Upload your syllabus or add a task to begin.')}</div>
-          <div class="rounded-2xl bg-gradient-to-br from-brand-600 to-[#6d9cff] p-6 text-white shadow-soft xl:col-span-2"><p class="text-sm font-bold text-blue-100">WEEKLY MOMENTUM</p><h3 class="mt-3 text-2xl font-extrabold">You’re building a habit.</h3><p class="mt-2 text-sm leading-6 text-blue-100">Complete a 25-minute focus session today to keep your momentum going.</p><button onclick="navigate('focus')" class="mt-7 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700">Start focus session</button><div class="mt-8 h-2 rounded-full bg-white/30"><div class="h-full rounded-full bg-white" style="width:${Math.min(100, state.sessions.length * 18)}%"></div></div></div>
-        </div>`;
+        <div class="mockup-body">
+          <div class="mockup-title">📚 Today's Study Plan</div>
+          <div class="mockup-card">
+            <div class="info"><p>Mathematics – Algebra</p><p>9:00 AM · 1 hour</p></div>
+            <span class="mockup-badge badge-high">High</span>
+          </div>
+          <div class="mockup-card">
+            <div class="info"><p>Physics – Kinematics</p><p>11:00 AM · 45 min</p></div>
+            <span class="mockup-badge badge-med">Medium</span>
+          </div>
+          <div class="mockup-card">
+            <div class="info"><p>Chemistry – Periodic Table</p><p>2:00 PM · 1 hour</p></div>
+            <span class="mockup-badge badge-done">Done</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Features</div>
+        <h2>Everything you need to succeed</h2>
+        <p>Powerful tools designed to help you plan, focus, and achieve your academic goals.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">📄</div><h3>Syllabus Parser</h3><p>Upload your syllabus PDF and let AI extract all chapters and topics automatically.</p></div>
+        <div class="feature-card"><div class="feature-icon">📅</div><h3>Smart Schedule</h3><p>Get a personalized study plan that adapts to your deadlines, difficulty, and priorities.</p></div>
+        <div class="feature-card"><div class="feature-icon">✅</div><h3>Task Manager</h3><p>Organize tasks with subjects, deadlines, difficulty levels, and priority badges.</p></div>
+        <div class="feature-card"><div class="feature-icon">⏱️</div><h3>Focus Timer</h3><p>Built-in Pomodoro timer to keep you focused with 25-minute study sessions.</p></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><h3>Analytics</h3><p>Track your progress with charts, streaks, and personalized AI recommendations.</p></div>
+        <div class="feature-card"><div class="feature-icon">🌓</div><h3>Dark Mode</h3><p>Easy on the eyes with a beautiful dark theme for late-night study sessions.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" style="background: var(--card);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">How It Works</div>
+        <h2>Get started in 3 simple steps</h2>
+        <p>From syllabus to success in minutes.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-number">1</div><h3>Upload Syllabus</h3><p>Drop your syllabus PDF or paste your topics list. Our AI parses everything instantly.</p></div>
+        <div class="step"><div class="step-number">2</div><h3>Get Your Plan</h3><p>Receive a personalized schedule prioritized by deadline, difficulty, and importance.</p></div>
+        <div class="step"><div class="step-number">3</div><h3>Study & Track</h3><p>Use the focus timer, complete tasks, and watch your progress grow with analytics.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="container">
+      <div class="cta">
+        <h2>Ready to transform your study habits?</h2>
+        <p>Join students who are already studying smarter with StudySmart AI. It's completely free.</p>
+        <button class="btn" onclick="scrollToApp()">🎓 Get Started Free</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="logo"><div class="logo-icon">S</div>StudySmart AI</a>
+        <p>An AI-powered study planner built for students, by students.</p>
+      </div>
+      <div class="footer-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#how">How It Works</a></li></ul></div>
+      <div class="footer-col"><h4>Resources</h4><ul><li><a href="#">Documentation</a></li><li><a href="#">FAQ</a></li></ul></div>
+      <div class="footer-col"><h4>Connect</h4><ul><li><a href="https://github.com/TvesaSingh/Study-Smart-AI">GitHub</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 StudySmart AI. All rights reserved.</p>
+      <p>Built with ❤️ for CEP 2026-27</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ====== AUTH SCREEN ====== -->
+<div id="authScreen" class="auth-screen hidden">
+  <div class="auth-box">
+    <h1>StudySmart AI</h1>
+    <p class="subtitle">Plan. Focus. Achieve.</p>
+
+    <div class="auth-tabs">
+      <button id="loginTab" class="active" onclick="switchAuth('login')">Login</button>
+      <button id="signupTab" onclick="switchAuth('signup')">Sign Up</button>
+    </div>
+
+    <div class="form-group hidden" id="nameGroup">
+      <label>Full Name</label>
+      <input id="authName" class="form-input" placeholder="Your name"/>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input id="authEmail" type="email" class="form-input" placeholder="you@example.com"/>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input id="authPass" type="password" class="form-input" placeholder="••••••••"/>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="handleAuth()" id="authSubmitBtn">Login</button>
+
+    <button class="btn btn-outline" style="width:100%; justify-content:center; margin-top:10px;" onclick="guestLogin()">Continue as Guest</button>
+  </div>
+</div>
+
+<!-- ====== APP ====== -->
+<div id="app" class="hidden">
+  <div class="app-container">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page">
+      <h2 class="page-title">Welcome back, <span id="dashName">User</span>!</h2>
+      <p class="page-subtitle" id="dashDate"></p>
+
+      <div class="stats-grid">
+        <div class="stat-card"><p>🔥 Streak</p><p id="statStreak">0 days</p></div>
+        <div class="stat-card"><p>⏱️ Hours</p><p id="statHours">0h</p></div>
+        <div class="stat-card"><p>✅ Tasks Done</p><p id="statTasks">0</p></div>
+        <div class="stat-card"><p>📚 Subjects</p><p id="statSubjects">0</p></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>📅 Today's Tasks</h3>
+          <div id="todayTasks"></div>
+        </div>
+        <div class="card">
+          <h3>⏰ Upcoming Deadlines</h3>
+          <div id="upcomingTasks"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYLLABUS -->
+    <div id="page-syllabus" class="page hidden">
+      <h2 class="page-title">Upload Syllabus</h2>
+      <p class="page-subtitle">Paste your topics — one per line. Use format "Subject: Topic".</p>
+
+      <div class="card">
+        <textarea id="syllabusText" class="form-input" placeholder="Math: Algebra&#10;Math: Geometry&#10;Physics: Kinematics&#10;Chemistry: Periodic Table&#10;Computer: Data Structures"></textarea>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="parseSyllabus()">🤖 Parse & Generate Schedule</button>
+      </div>
+
+      <div id="parsedOutput"></div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div id="page-schedule" class="page hidden">
+      <h2 class="page-title">My Schedule</h2>
+      <p class="page-subtitle">Your personalized study plan.</p>
+      <div class="card"><div id="scheduleList"></div></div>
+    </div>
+
+    <!-- TASKS -->
+    <div id="page-tasks" class="page hidden">
+      <h2 class="page-title">Task Manager</h2>
+      <p class="page-subtitle">Add, complete, and manage your tasks.</p>
+
+      <div class="card">
+        <h3>➕ Add New Task</h3>
+        <div class="grid-2">
+          <div class="form-group"><label>Task Title</label><input id="tTitle" class="form-input" placeholder="e.g. Solve 10 algebra problems"/></div>
+          <div class="form-group"><label>Subject</label><input id="tSubject" class="form-input" placeholder="e.g. Math"/></div>
+          <div class="form-group"><label>Deadline</label><input id="tDeadline" type="date" class="form-input"/></div>
+          <div class="form-group"><label>Priority</label>
+            <select id="tPriority" class="form-input">
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+      </div>
+
+      <div id="taskList"></div>
+    </div>
+
+    <!-- FOCUS -->
+    <div id="page-focus" class="page hidden">
+      <h2 class="page-title">Focus Timer</h2>
+      <p class="page-subtitle">Pomodoro technique — 25 min focus, 5 min break.</p>
+
+      <div class="card" style="text-align:center;">
+        <p id="focusMode" style="color: var(--muted); font-weight: 600;">Focus Session</p>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <div class="timer-controls">
+          <button class="btn btn-primary" id="timerBtn" onclick="toggleTimer()">Start</button>
+          <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
+        </div>
+        <p style="margin-top:20px; color: var(--muted); font-size:14px;">Sessions today: <span id="sessionCount" style="color:var(--primary); font-weight:700;">0</span></p>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="page-analytics" class="page hidden">
+      <h2 class="page-title">Analytics</h2>
+      <p class="page-subtitle">Track your progress and productivity.</p>
+
+      <div class="grid-2">
+        <div class="card"><h3>Tasks by Subject</h3><div class="chart-container"><canvas id="subjectChart"></canvas></div></div>
+        <div class="card"><h3>Task Status</h3><div class="chart-container"><canvas id="statusChart"></canvas></div></div>
+      </div>
+
+      <div class="card">
+        <h3>🤖 AI Recommendation</h3>
+        <div class="ai-recommendation" id="aiRecommendation">Add tasks to get recommendations.</div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="page-profile" class="page hidden">
+      <h2 class="page-title">Profile</h2>
+      <p class="page-subtitle">Manage your account and preferences.</p>
+
+      <div class="card">
+        <h3>Personal Info</h3>
+        <div class="form-group"><label>Name</label><input id="pName" class="form-input"/></div>
+        <div class="form-group"><label>Daily Study Target (hours)</label><input id="pHours" type="number" class="form-input"/></div>
+        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+      </div>
+
+      <div class="card">
+        <h3>🏆 Achievements</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <span style="padding:8px 14px; background:#D5F5EE; color:#0B8A6E; border-radius:20px; font-size:13px; font-weight:600;">First Task ✅</span>
+          <span style="padding:8px 14px; background:#E5E4FF; color:#5A52D4; border-radius:20px; font-size:13px; font-weight:600;">5 Tasks Done 🎯</span>
+          <span style="padding:8px 14px; background:#FFF4D6; color:#B8860B; border-radius:20px; font-size:13px; font-weight:600;">3-Day Streak 🔥</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mobile bottom nav -->
+<div class="mobile-nav hidden" id="mobileNav">
+  <button onclick="showPage('dashboard')" data-nav="dashboard"><span>🏠</span><span>Home</span></button>
+  <button onclick="showPage('syllabus')" data-nav="syllabus"><span>📄</span><span>Syllabus</span></button>
+  <button onclick="showPage('tasks')" data-nav="tasks"><span>✅</span><span>Tasks</span></button>
+  <button onclick="showPage('focus')" data-nav="focus"><span>⏱️</span><span>Focus</span></button>
+  <button onclick="showPage('analytics')" data-nav="analytics"><span>📊</span><span>Stats</span></button>
+</div>
+
+<script>
+/* ============ STATE ============ */
+let state = JSON.parse(localStorage.getItem('studysmart') || '{}');
+state.user = state.user || null;
+state.tasks = state.tasks || [];
+state.sessions = state.sessions || [];
+state.theme = state.theme || 'light';
+
+function save() { localStorage.setItem('studysmart', JSON.stringify(state)); }
+
+/* ============ THEME ============ */
+function toggleTheme() {
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  save();
+  applyTheme();
+}
+function applyTheme() {
+  document.body.classList.toggle('dark', state.theme === 'dark');
+}
+applyTheme();
+
+/* ============ NAVIGATION ============ */
+function goHome() {
+  document.getElementById('landingPage').classList.remove('hidden');
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('mobileNav').classList.add('hidden');
+  window.scrollTo(0, 0);
+}
+
+function scrollToApp() {
+  document.getElementById('landingPage').classList.add('hidden');
+  if (state.user) {
+    enterApp();
+  } else {
+    document.getElementById('authScreen').classList.remove('hidden');
+  }
+  window.scrollTo(0, 0);
+}
+
+/* ============ AUTH ============ */
+let authMode = 'login';
+
+function switchAuth(mode) {
+  authMode = mode;
+  document.getElementById('loginTab').classList.toggle('active', mode === 'login');
+  document.getElementById('signupTab').classList.toggle('active', mode === 'signup');
+  document.getElementById('nameGroup').classList.toggle('hidden', mode === 'login');
+  document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Login' : 'Create Account';
+}
+
+function handleAuth() {
+  const name = document.getElementById('authName').value.trim();
+  const email = document.getElementById('authEmail').value.trim();
+  const pass = document.getElementById('authPass').value.trim();
+
+  if (!email || !pass) return toast('Please enter email and password');
+  if (authMode === 'signup' && !name) return toast('Please enter your name');
+
+  state.user = {
+    name: authMode === 'signup' ? name : email.split('@')[0],
+    email, hours: 4
+  };
+  save();
+  enterApp();
+  toast('Welcome, ' + state.user.name + '!');
+}
+
+function guestLogin() {
+  state.user = { name: 'Guest', email: 'guest@local', hours: 4 };
+  save();
+  enterApp();
+  toast('Logged in as Guest');
+}
+
+function logout() {
+  state.user = null;
+  save();
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('landingPage').classList.remove('hidden');
+  document.getElementById('mobileNav').classList.add('hidden');
+  document.getElementById('navLogoutBtn').classList.add('hidden');
+  document.getElementById('navAuthBtn').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+/* ============ APP ENTRY ============ */
+function enterApp() {
+  document.getElementById('landingPage').classList.add('hidden');
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('mobileNav').classList.remove('hidden');
+  document.getElementById('navAuthBtn').classList.add('hidden');
+  document.getElementById('navLogoutBtn').classList.remove('hidden');
+
+  document.getElementById('dashName').textContent = state.user.name;
+  document.getElementById('dashDate').textContent = new Date().toDateString();
+  document.getElementById('pName').value = state.user.name;
+  document.getElementById('pHours').value = state.user.hours || 4;
+
+  showPage('dashboard');
+  renderAll();
+}
+
+/* ============ PAGES ============ */
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.remove('hidden');
+
+  document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
+  const navBtn = document.querySelector(`.mobile-nav button[data-nav="${page}"]`);
+  if (navBtn) navBtn.classList.add('active');
+
+  if (page === 'analytics') setTimeout(renderCharts, 50);
+  window.scrollTo(0, 0);
+}
+
+/* ============ TASKS ============ */
+function addTask() {
+  const title = document.getElementById('tTitle').value.trim();
+  const subject = document.getElementById('tSubject').value.trim() || 'General';
+  const deadline = document.getElementById('tDeadline').value;
+  const priority = document.getElementById('tPriority').value;
+
+  if (!title) return toast('Please enter a task title');
+
+  state.tasks.push({
+    id: Date.now(),
+    title, subject, deadline, priority,
+    status: 'Pending'
+  });
+  save();
+
+  document.getElementById('tTitle').value = '';
+  document.getElementById('tSubject').value = '';
+  document.getElementById('tDeadline').value = '';
+
+  toast('Task added!');
+  renderAll();
+}
+
+function toggleTask(id) {
+  const t = state.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.status = t.status === 'Completed' ? 'Pending' : 'Completed';
+  save();
+  renderAll();
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(x => x.id !== id);
+  save();
+  renderAll();
+  toast('Task deleted');
+}
+
+/* ============ SYLLABUS PARSING ============ */
+function parseSyllabus() {
+  const text = document.getElementById('syllabusText').value.trim();
+  if (!text) return toast('Paste some topics first');
+
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const subjects = {};
+
+  lines.forEach(line => {
+    if (line.includes(':')) {
+      const [sub, topic] = line.split(':').map(s => s.trim());
+      subjects[sub] = subjects[sub] || [];
+      subjects[sub].push(topic);
+    } else {
+      subjects['General'] = subjects['General'] || [];
+      subjects['General'].push(line);
     }
-    function statCard(icon, label, value, sub, color) { return `<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-[#111a2c]"><div class="flex items-start justify-between"><span class="text-2xl ${color}">${icon}</span><span class="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-bold uppercase text-slate-400 dark:bg-slate-800">Today</span></div><p class="mt-5 text-sm text-slate-500">${label}</p><p class="mt-1 text-2xl font-extrabold">${value}</p><p class="mt-1 text-xs text-slate-400">${sub}</p></div>`; }
-    function empty(title, text) { return `<div class="rounded-xl border border-dashed border-slate-200 p-8 text-center dark:border-slate-700"><p class="font-bold">${title}</p><p class="mt-1 text-sm text-slate-500">${text}</p></div>`; }
-    function taskListHtml(tasks, compact=false) { return tasks.map(t => `<div class="group flex items-center gap-3 border-b border-slate-100 py-3 last:border-0 dark:border-slate-800"><button onclick="toggleTask('${t.id}')" class="grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${t.done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600'} text-xs">${t.done ? '✓' : ''}</button><div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold ${t.done ? 'text-slate-400 line-through' : ''}">${esc(t.title)}</p><p class="mt-0.5 text-xs text-slate-400">${esc(t.subject || 'General')} · ${t.minutes || 25} min</p></div>${!compact ? `<button onclick="deleteTask('${t.id}')" class="text-slate-300 hover:text-red-500">×</button>` : ''}</div>`).join(''); }
+  });
 
-    function renderSyllabus() { document.getElementById('syllabus').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">SMART PLANNER</p><h1 class="text-3xl font-extrabold">Turn your syllabus into a plan.</h1><p class="mt-2 text-slate-500">Paste your topics below. StudySmart will turn each line into an actionable task.</p></div><div class="grid gap-6 lg:grid-cols-5"><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-3"><label class="text-sm font-bold">Paste syllabus or topic list<textarea id="syllabusText" rows="13" class="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800" placeholder="Week 1: Introduction to Biology&#10;Cell structure and function&#10;Genetics and inheritance&#10;...">${esc(state.syllabus)}</textarea></label><div class="mt-4 flex flex-wrap gap-3"><button onclick="parseSyllabus()" class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white hover:bg-brand-700">✦ Generate tasks</button><button onclick="document.getElementById('syllabusText').value=''" class="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold dark:border-slate-700">Clear</button></div></div><div class="rounded-2xl bg-brand-50 p-6 dark:bg-brand-500/10"><div class="grid h-11 w-11 place-items-center rounded-xl bg-brand-100 text-xl text-brand-600 dark:bg-brand-500/20">✎</div><h3 class="mt-5 text-lg font-bold">How it works</h3><ul class="mt-4 space-y-4 text-sm leading-6 text-slate-600 dark:text-slate-300"><li><b class="text-brand-600">01</b> Paste one topic or chapter per line.</li><li><b class="text-brand-600">02</b> We remove empty lines and tidy labels.</li><li><b class="text-brand-600">03</b> Review your new tasks in Task manager.</li></ul><div class="mt-8 rounded-xl bg-white/70 p-4 text-xs text-slate-500 dark:bg-slate-900/30"><b>Tip:</b> Include a subject with a colon, like “Math: Quadratic equations”.</div></div></div>`; }
-    function renderTasks() { document.getElementById('tasks').innerHTML = `<div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="mb-2 text-sm font-semibold text-brand-600">YOUR WORKLOAD</p><h1 class="text-3xl font-extrabold">Task manager</h1><p class="mt-2 text-slate-500">Make your next action visible.</p></div><button onclick="addTaskModal()" class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white hover:bg-brand-700">+ Add task</button></div><div class="grid gap-6 lg:grid-cols-3"><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-2"><div class="mb-5 flex items-center justify-between"><h3 class="font-bold">All tasks <span class="ml-1 text-sm font-normal text-slate-400">${state.tasks.length}</span></h3><span class="text-sm text-emerald-500">${completed()} completed</span></div>${taskListHtml(state.tasks) || empty('Your task list is clear', 'Add a task or generate one from your syllabus.')}</div><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c]"><h3 class="font-bold">Progress</h3><div class="mx-auto my-8 grid h-36 w-36 place-items-center rounded-full" style="background:conic-gradient(#4387ff ${state.tasks.length ? completed()/state.tasks.length*360 : 0}deg, #e2e8f0 0deg)"><div class="grid h-28 w-28 place-items-center rounded-full bg-white text-center dark:bg-[#111a2c]"><b class="text-2xl">${state.tasks.length ? Math.round(completed()/state.tasks.length*100) : 0}%</b><span class="text-xs text-slate-400">done</span></div></div><p class="text-center text-sm text-slate-500">Keep going, one task at a time.</p></div></div>`; }
-    function renderSchedule() { const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; document.getElementById('schedule').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">YOUR WEEK</p><h1 class="text-3xl font-extrabold">Schedule</h1><p class="mt-2 text-slate-500">A flexible view of your study rhythm.</p></div><div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">${days.map((d,i) => { const dayTasks = state.tasks.filter((_,idx) => idx % 7 === i).slice(0,3); return `<div class="min-h-48 rounded-2xl border ${i === (new Date().getDay()+6)%7 ? 'border-brand-500 ring-2 ring-brand-100 dark:ring-brand-500/20' : 'border-slate-200'} bg-white p-3 dark:border-slate-800 dark:bg-[#111a2c]"><div class="mb-4 flex items-center justify-between"><span class="text-sm font-bold">${d}</span>${i === (new Date().getDay()+6)%7 ? '<span class="h-2 w-2 rounded-full bg-brand-500"></span>' : ''}</div>${dayTasks.length ? dayTasks.map(t=>`<div class="mb-2 rounded-lg bg-brand-50 p-2 text-xs dark:bg-brand-500/10"><p class="font-bold">${esc(t.title)}</p><p class="mt-1 text-slate-400">${t.minutes||25} min</p></div>`).join('') : '<p class="text-xs text-slate-400">Open</p>'}</div>`; }).join('')}</div><div class="mt-6 rounded-2xl bg-slate-900 p-6 text-white dark:bg-slate-800"><div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p class="text-sm font-bold text-blue-300">TIME BLOCKING</p><h3 class="mt-1 text-lg font-bold">Protect your best study hours</h3></div><button onclick="navigate('focus')" class="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-900">Open focus timer</button></div></div>`; }
-    function renderFocus() { const m = String(Math.floor(timer.seconds/60)).padStart(2,'0'), s = String(timer.seconds%60).padStart(2,'0'); document.getElementById('focus').innerHTML = `<div class="mx-auto max-w-3xl"><div class="mb-8 text-center"><p class="mb-2 text-sm font-semibold text-brand-600">DEEP WORK</p><h1 class="text-3xl font-extrabold">Focus timer</h1><p class="mt-2 text-slate-500">One 25-minute session. No multitasking.</p></div><div class="rounded-3xl bg-gradient-to-br from-[#173d91] to-brand-500 p-8 text-center text-white shadow-soft sm:p-14"><div class="relative mx-auto grid h-64 w-64 place-items-center rounded-full border-[12px] border-white/20"><div class="absolute inset-0 rounded-full border-[12px] border-white border-l-transparent border-b-transparent ring-progress"></div><div><p class="text-6xl font-extrabold tracking-tight">${m}:${s}</p><p class="mt-2 text-sm text-blue-100">${timer.running ? 'Stay in the zone' : 'Ready when you are'}</p></div></div><div class="mt-9 flex justify-center gap-3"><button onclick="toggleTimer()" class="rounded-xl bg-white px-7 py-3 font-bold text-brand-700">${timer.running ? 'Pause' : 'Start session'}</button><button onclick="resetTimer()" class="rounded-xl bg-white/15 px-5 py-3 font-bold hover:bg-white/25">Reset</button></div></div><div class="mt-6 grid gap-4 sm:grid-cols-3">${[['25','Focus'],['5','Short break'],['15','Long break']].map(x=>`<div class="rounded-xl border border-slate-200 bg-white p-4 text-center dark:border-slate-800 dark:bg-[#111a2c]"><p class="text-xl font-extrabold">${x[0]} min</p><p class="mt-1 text-xs text-slate-400">${x[1]}</p></div>`).join('')}</div></div>`; }
-    function renderAnalytics() { document.getElementById('analytics').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">INSIGHTS</p><h1 class="text-3xl font-extrabold">Analytics</h1><p class="mt-2 text-slate-500">A clearer picture of your consistency.</p></div><div class="grid gap-6 lg:grid-cols-5"><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-3"><h3 class="font-bold">Study hours</h3><p class="mb-4 text-sm text-slate-500">Your weekly focus activity</p><canvas id="barChart" height="220"></canvas></div><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c] lg:col-span-2"><h3 class="font-bold">Task distribution</h3><p class="mb-4 text-sm text-slate-500">Completed vs remaining</p><canvas id="doughnutChart" height="220"></canvas></div></div>`; setTimeout(drawCharts, 0); }
-    function drawCharts() { if (!window.Chart) return; const color = document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#64748b'; new Chart(document.getElementById('barChart'), { type:'bar', data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ label:'Hours', data:[.8,1.3,.5,1.8,.9,1.2,.4], backgroundColor:'#4387ff', borderRadius:7 }] }, options:{ plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{color:'rgba(148,163,184,.15)'}, ticks:{color}},x:{grid:{display:false},ticks:{color}}} } }); new Chart(document.getElementById('doughnutChart'), { type:'doughnut', data:{labels:['Completed','Remaining'],datasets:[{data:[completed(),Math.max(state.tasks.length-completed(),0)],backgroundColor:['#34d399','#dbeafe'],borderWidth:0}]},options:{cutout:'72%',plugins:{legend:{position:'bottom',labels:{color,padding:18}}}}}); }
-    function renderProfile() { document.getElementById('profile').innerHTML = `<div class="mb-8"><p class="mb-2 text-sm font-semibold text-brand-600">YOUR ACCOUNT</p><h1 class="text-3xl font-extrabold">Profile</h1><p class="mt-2 text-slate-500">Personalize your study experience.</p></div><div class="max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-[#111a2c]"><div class="flex items-center gap-4 border-b border-slate-100 pb-6 dark:border-slate-800"><div class="grid h-16 w-16 place-items-center rounded-2xl bg-brand-100 text-2xl font-extrabold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">${esc((state.user?.name||'S')[0].toUpperCase())}</div><div><h3 class="text-xl font-extrabold">${esc(state.user?.name || 'Student')}</h3><p class="text-sm text-slate-500">${esc(state.user?.email || 'Guest mode')}</p></div></div><form id="profileForm" class="mt-6 space-y-5"><label class="block text-sm font-bold">Full name<input id="profileName" value="${esc(state.user?.name||'')}" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"></label><label class="block text-sm font-bold">Daily study goal <span class="font-normal text-slate-400">(hours)</span><input id="profileHours" type="number" min="0.5" max="16" step=".5" value="${state.dailyHours}" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"></label><button class="rounded-xl bg-brand-600 px-5 py-3 text-sm font-bold text-white hover:bg-brand-700">Save profile</button></form></div>`; document.getElementById('profileForm').onsubmit = e => { e.preventDefault(); state.user.name = document.getElementById('profileName').value.trim() || 'Student'; state.dailyHours = Number(document.getElementById('profileHours').value) || 2; save(); updateUserUi(); showToast('Profile saved'); }; }
-    function addTaskModal() { openModal(`<h3 class="text-xl font-extrabold">Add a task</h3><p class="mt-1 text-sm text-slate-500">What would you like to accomplish?</p><form id="taskForm" class="mt-5 space-y-4"><input id="newTitle" required autofocus placeholder="e.g. Review chapter 3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"><input id="newSubject" placeholder="Subject (optional)" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"><div class="flex justify-end gap-2"><button type="button" onclick="closeModal()" class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500">Cancel</button><button class="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white">Add task</button></div></form>`); document.getElementById('taskForm').onsubmit = e => { e.preventDefault(); state.tasks.unshift({id: crypto.randomUUID(), title: document.getElementById('newTitle').value.trim(), subject: document.getElementById('newSubject').value.trim() || 'General', minutes:25, done:false}); save(); closeModal(); renderAll(); showToast('Task added'); }; }
-    function parseSyllabus() { const text = document.getElementById('syllabusText').value; const lines = text.split(/\n/).map(x=>x.replace(/^[-*•\d.)\s]+/,'').trim()).filter(Boolean); if (!lines.length) { showToast('Paste at least one topic first'); return; } state.syllabus=text; lines.forEach(line => { const parts=line.split(':'); state.tasks.push({id:crypto.randomUUID(), title:(parts.length>1?parts.slice(1).join(':'):line).trim(), subject:parts.length>1?parts[0].trim():'Syllabus', minutes:25, done:false}); }); save(); renderAll(); navigate('tasks'); showToast(`${lines.length} tasks created from your syllabus`); }
-    function toggleTask(id) { const t=state.tasks.find(x=>x.id===id); if(t) t.done=!t.done; save(); renderAll(); }
-    function deleteTask(id) { state.tasks=state.tasks.filter(t=>t.id!==id); save(); renderAll(); showToast('Task deleted'); }
-    function toggleTimer() { if(timer.running){clearInterval(timer.interval);timer.running=false;} else {timer.running=true;timer.interval=setInterval(()=>{timer.seconds--;if(timer.seconds<=0){clearInterval(timer.interval);timer.running=false;state.sessions.push({date:today(),minutes:25});save();showToast('Focus session complete!');}renderFocus();},1000);} renderFocus(); }
-    function resetTimer() { clearInterval(timer.interval); timer={seconds:1500,running:false,interval:null}; renderFocus(); }
-    function navigate(view) { document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id===view)); document.querySelectorAll('.nav-link').forEach(el=>el.classList.toggle('active',el.dataset.view===view)); document.getElementById('pageTitle').textContent=view==='tasks'?'Task manager':view[0].toUpperCase()+view.slice(1); if(view==='analytics') drawCharts(); }
-    function renderAll() { renderDashboard();renderSyllabus();renderTasks();renderSchedule();renderFocus();renderAnalytics();renderProfile(); }
-    function updateUserUi() { document.getElementById('avatar').textContent=(state.user?.name||'S')[0].toUpperCase(); }
-    document.getElementById('authForm').onsubmit = e => { e.preventDefault(); state.user={name:document.getElementById('authName').value.trim(),email:document.getElementById('authEmail').value.trim()}; startApp(); };
-    document.getElementById('guestBtn').onclick = () => { state.user={name:'Guest student',email:'Guest mode'}; startApp(); };
-    function startApp() { save(); document.getElementById('authScreen').classList.add('hidden');document.getElementById('appShell').classList.remove('hidden');updateUserUi();renderAll(); }
-    document.getElementById('logoutBtn').onclick=()=>{state.user=null;save();document.getElementById('appShell').classList.add('hidden');document.getElementById('authScreen').classList.remove('hidden');};
-    document.getElementById('themeBtn').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';document.documentElement.classList.toggle('dark',state.theme==='dark');save();renderAll();};
-    document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.view)));
-    const mobileItems=[['dashboard','⌂'],['tasks','✓'],['focus','◷'],['analytics','⌁'],['profile','◉']]; document.getElementById('mobileNav').innerHTML=mobileItems.map(([v,i])=>`<button data-view="${v}" class="nav-link flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-[10px]"><span class="text-lg">${i}</span>${v[0].toUpperCase()+v.slice(1)}</button>`).join(''); document.querySelectorAll('#mobileNav [data-view]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.view)));
-    document.documentElement.classList.toggle('dark',state.theme==='dark');
-    if(state.user) startApp();
-  </script>
+  let count = 0;
+  Object.entries(subjects).forEach(([sub, topics]) => {
+    topics.forEach((topic, i) => {
+      const deadline = new Date();
+      deadline.setDate(deadline.getDate() + (i + 1) * 2);
+      state.tasks.push({
+        id: Date.now() + Math.random(),
+        title: topic,
+        subject: sub,
+        deadline: deadline.toISOString().split('T')[0],
+        priority: i < 2 ? 'High' : 'Medium',
+        status: 'Pending'
+      });
+      count++;
+    });
+  });
+
+  save();
+  document.getElementById('parsedOutput').innerHTML = `
+    <div class="card" style="border-color: var(--success);">
+      <h3>✅ Parsed ${count} topics from ${Object.keys(subjects).length} subjects</h3>
+      <p style="color: var(--muted); margin-top:8px;">Tasks have been added to your Task Manager.</p>
+    </div>`;
+
+  toast(`Parsed ${count} topics!`);
+  renderAll();
+}
+
+/* ============ FOCUS TIMER ============ */
+let timerInterval = null;
+let timeLeft = 25 * 60;
+let isRunning = false;
+let mode = 'Focus';
+
+function updateTimerDisplay() {
+  const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+  const s = String(timeLeft % 60).padStart(2, '0');
+  document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+}
+
+function toggleTimer() {
+  if (isRunning) {
+    clearInterval(timerInterval);
+    isRunning = false;
+    document.getElementById('timerBtn').textContent = 'Resume';
+  } else {
+    isRunning = true;
+    document.getElementById('timerBtn').textContent = 'Pause';
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        completeSession();
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  isRunning = false;
+  timeLeft = (mode === 'Focus' ? 25 : 5) * 60;
+  document.getElementById('timerBtn').textContent = 'Start';
+  updateTimerDisplay();
+}
+
+function completeSession() {
+  state.sessions.push({
+    id: Date.now(),
+    date: new Date().toISOString(),
+    duration: 25,
+    type: mode
+  });
+  save();
+
+  document.getElementById('sessionCount').textContent = state.sessions.filter(
+    s => s.date.startsWith(new Date().toISOString().split('T')[0])
+  ).length;
+
+  toast(mode + ' session complete! 🎉');
+
+  mode = mode === 'Focus' ? 'Break' : 'Focus';
+  document.getElementById('focusMode').textContent = mode + ' Session';
+  timeLeft = (mode === 'Focus' ? 25 : 5) * 60;
+  updateTimerDisplay();
+  document.getElementById('timerBtn').textContent = 'Start';
+  renderAll();
+}
+
+/* ============ RENDER ============ */
+function renderAll() {
+  if (!state.user) return;
+
+  const today = new Date().toISOString().split('T')[0];
+  const todaySessions = state.sessions.filter(s => s.date.startsWith(today));
+  const completedTasks = state.tasks.filter(t => t.status === 'Completed').length;
+
+  document.getElementById('statStreak').textContent = state.sessions.length > 0 ? Math.min(state.sessions.length, 7) + ' days' : '0 days';
+  document.getElementById('statHours').textContent = (state.sessions.length * 25 / 60).toFixed(1) + 'h';
+  document.getElementById('statTasks').textContent = completedTasks;
+  document.getElementById('statSubjects').textContent = [...new Set(state.tasks.map(t => t.subject))].length;
+
+  document.getElementById('sessionCount').textContent = todaySessions.length;
+
+  // Today's tasks
+  const todayTasks = state.tasks.filter(t => t.status === 'Pending').slice(0, 5);
+  document.getElementById('todayTasks').innerHTML = todayTasks.length
+    ? todayTasks.map(t => `
+      <div class="task-item">
+        <div class="task-info">
+          <p>${t.title}</p>
+          <p>${t.subject} • ${t.deadline || 'No deadline'}</p>
+        </div>
+        <span class="task-badge ${t.priority === 'High' ? 'badge-high' : t.priority === 'Medium' ? 'badge-med' : 'badge-done'}">${t.priority}</span>
+      </div>`).join('')
+    : '<div class="empty-state"><div class="icon">📝</div><p>No tasks yet. Add one!</p></div>';
+
+  // Upcoming
+  const upcoming = state.tasks
+    .filter(t => t.deadline && t.status !== 'Completed')
+    .sort((a, b) => a.deadline.localeCompare(b.deadline))
+    .slice(0, 5);
+
+  document.getElementById('upcomingTasks').innerHTML = upcoming.length
+    ? upcoming.map(t => `
+      <div class="task-item">
+        <div class="task-info">
+          <p>${t.title}</p>
+          <p>${t.subject}</p>
+        </div>
+        <span style="font-size:12px; color: var(--muted);">${t.deadline}</span>
+      </div>`).join('')
+    : '<div class="empty-state"><div class="icon">⏰</div><p>Nothing due soon.</p></div>';
+
+  // Schedule
+  document.getElementById('scheduleList').innerHTML = state.tasks.length
+    ? state.tasks.map(t => `
+      <div class="task-item ${t.status === 'Completed' ? 'completed' : ''}">
+        <div class="task-info">
+          <p>${t.title}</p>
+          <p>${t.subject} • ${t.deadline || 'No deadline'}</p>
+        </div>
+        <span class="task-badge ${t.status === 'Completed' ? 'badge-done' : 'badge-med'}">${t.status}</span>
+      </div>`).join('')
+    : '<div class="empty-state"><div class="icon">📅</div><p>No schedule yet. Upload a syllabus to generate one.</p></div>';
+
+  // Task list
+  document.getElementById('taskList').innerHTML = state.tasks.length
+    ? state.tasks.map(t => `
+      <div class="task-item ${t.status === 'Completed' ? 'completed' : ''}">
+        <div class="task-info">
+          <p>${t.title}</p>
+          <p>${t.subject} • ${t.deadline || 'No deadline'} • ${t.priority}</p>
+        </div>
+        <div class="task-actions">
+          <button class="btn-done" onclick="toggleTask(${t.id})">${t.status === 'Completed' ? 'Undo' : '✓ Done'}</button>
+          <button class="btn-delete" onclick="deleteTask(${t.id})">🗑</button>
+        </div>
+      </div>`).join('')
+    : '<div class="empty-state"><div class="icon">📋</div><p>No tasks yet. Add one above.</p></div>';
+
+  // AI recommendation
+  const pending = state.tasks.filter(t => t.status === 'Pending').length;
+  document.getElementById('aiRecommendation').textContent = state.tasks.length
+    ? `You have ${pending} pending and ${completedTasks} completed tasks. ${pending > completedTasks ? 'Focus on high-priority tasks first to reduce your workload.' : 'Great job! Keep up the momentum.'}`
+    : 'Add some tasks to get personalized recommendations.';
+}
+
+/* ============ CHARTS ============ */
+let subjectChart, statusChart;
+
+function renderCharts() {
+  const subjects = {};
+  state.tasks.forEach(t => subjects[t.subject] = (subjects[t.subject] || 0) + 1);
+
+  const ctx1 = document.getElementById('subjectChart');
+  if (!ctx1) return;
+  if (subjectChart) subjectChart.destroy();
+  subjectChart = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(subjects).length ? Object.keys(subjects) : ['No data'],
+      datasets: [{
+        label: 'Tasks',
+        data: Object.values(subjects).length ? Object.values(subjects) : [0],
+        backgroundColor: '#6C63FF',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+
+  const statuses = { Pending: 0, Completed: 0 };
+  state.tasks.forEach(t => statuses[t.status] = (statuses[t.status] || 0) + 1);
+
+  const ctx2 = document.getElementById('statusChart');
+  if (statusChart) statusChart.destroy();
+  statusChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(statuses),
+      datasets: [{
+        data: Object.values(statuses),
+        backgroundColor: ['#FFD93D', '#4ECDC4']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+}
+
+/* ============ PROFILE ============ */
+function saveProfile() {
+  state.user.name = document.getElementById('pName').value || state.user.name;
+  state.user.hours = parseInt(document.getElementById('pHours').value) || 4;
+  save();
+  document.getElementById('dashName').textContent = state.user.name;
+  toast('Profile saved!');
+}
+
+/* ============ TOAST ============ */
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+/* ============ INIT ============ */
+updateTimerDisplay();
+if (state.user) {
+  enterApp();
+}
+</script>
+
 </body>
 </html>
