@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>StudySmart AI – Plan. Focus. Achieve.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -39,13 +39,13 @@
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
-    transition: background 0.3s ease, color 0.3s ease;
+    transition: background 0.3s, color 0.3s;
     overflow-x: hidden;
   }
 
   .hidden { display: none !important; }
 
-  /* ====== NAVBAR ====== */
+  /* ============ NAVBAR ============ */
   nav {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -110,14 +110,9 @@
   }
 
   .nav-links a:hover, .nav-links button:hover { color: var(--primary); }
-
   .nav-links button.active { color: var(--primary); font-weight: 700; }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 12px; }
 
   .theme-toggle {
     background: transparent;
@@ -129,6 +124,7 @@
     color: var(--text);
   }
 
+  /* ============ BUTTONS ============ */
   .btn {
     padding: 12px 24px;
     border-radius: 10px;
@@ -144,28 +140,14 @@
     text-decoration: none;
   }
 
-  .btn-primary {
-    background: var(--primary);
-    color: white;
-    box-shadow: 0 4px 14px rgba(108,99,255,0.3);
-  }
-
-  .btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-  }
-
-  .btn-outline {
-    background: transparent;
-    color: var(--text);
-    border: 1.5px solid var(--border);
-  }
-
+  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 14px rgba(108,99,255,0.3); }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
   .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
-
   .btn-sm { padding: 8px 16px; font-size: 14px; }
+  .btn-danger { background: #FFE5E5; color: #D63031; }
 
-  /* ====== LANDING PAGE ====== */
+  /* ============ HERO ============ */
   .hero {
     padding: 140px 24px 80px;
     max-width: 1200px;
@@ -178,7 +160,6 @@
 
   .hero-badge {
     display: inline-flex;
-    align-items: center;
     gap: 8px;
     background: rgba(108,99,255,0.1);
     color: var(--primary);
@@ -203,26 +184,9 @@
     -webkit-text-fill-color: transparent;
   }
 
-  .hero p {
-    font-size: 18px;
-    color: var(--muted);
-    margin-bottom: 32px;
-    max-width: 520px;
-  }
-
-  .hero-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 40px;
-  }
-
-  .hero-stats {
-    display: flex;
-    gap: 32px;
-    flex-wrap: wrap;
-  }
-
+  .hero p { font-size: 18px; color: var(--muted); margin-bottom: 32px; max-width: 520px; }
+  .hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+  .hero-stats { display: flex; gap: 32px; flex-wrap: wrap; }
   .hero-stat h3 { font-size: 28px; font-weight: 800; color: var(--primary); }
   .hero-stat p { font-size: 13px; color: var(--muted); margin: 0; }
 
@@ -241,14 +205,8 @@
     gap: 8px;
   }
 
-  .mockup-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.5);
-  }
-
+  .mockup-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.5); }
   .mockup-body { padding: 24px; }
-
   .mockup-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
 
   .mockup-card {
@@ -264,48 +222,24 @@
 
   .mockup-card .info p:first-child { font-size: 13px; font-weight: 600; }
   .mockup-card .info p:last-child { font-size: 11px; color: var(--muted); }
-
-  .mockup-badge {
-    font-size: 10px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-weight: 600;
-  }
+  .mockup-badge { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
 
   .badge-high { background: #FFE5E5; color: #D63031; }
   .badge-med { background: #FFF4D6; color: #B8860B; }
   .badge-done { background: #D5F5EE; color: #0B8A6E; }
+  .badge-low { background: #E5E4FF; color: #5A52D4; }
 
+  /* ============ SECTIONS ============ */
   section { padding: 80px 24px; }
   .container { max-width: 1200px; margin: 0 auto; }
-
-  .section-header {
-    text-align: center;
-    max-width: 700px;
-    margin: 0 auto 60px;
-  }
-
-  .section-tag {
-    color: var(--primary);
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 12px;
-  }
-
-  .section-header h2 {
-    font-size: 40px;
-    font-weight: 800;
-    margin-bottom: 16px;
-    letter-spacing: -1px;
-  }
-
+  .section-header { text-align: center; max-width: 700px; margin: 0 auto 60px; }
+  .section-tag { color: var(--primary); font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .section-header h2 { font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px; }
   .section-header p { font-size: 17px; color: var(--muted); }
 
   .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
   }
 
@@ -317,100 +251,39 @@
     transition: all 0.3s;
   }
 
-  .feature-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-    border-color: var(--primary);
-  }
-
-  .feature-icon {
-    width: 56px; height: 56px;
-    border-radius: 14px;
-    background: rgba(108,99,255,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    margin-bottom: 20px;
-  }
-
+  .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); border-color: var(--primary); }
+  .feature-icon { width: 56px; height: 56px; border-radius: 14px; background: rgba(108,99,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 20px; }
   .feature-card h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
   .feature-card p { color: var(--muted); font-size: 15px; }
 
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 32px;
-  }
-
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px; }
   .step { text-align: center; }
-
   .step-number {
-    width: 64px; height: 64px;
-    border-radius: 50%;
+    width: 64px; height: 64px; border-radius: 50%;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    font-size: 24px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    box-shadow: 0 10px 24px rgba(108,99,255,0.3);
+    color: white; font-size: 24px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px; box-shadow: 0 10px 24px rgba(108,99,255,0.3);
   }
-
   .step h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
   .step p { color: var(--muted); font-size: 15px; }
 
-  .cta {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    border-radius: 24px;
-    padding: 60px 40px;
-    text-align: center;
-    color: white;
-  }
-
+  .cta { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 24px; padding: 60px 40px; text-align: center; color: white; }
   .cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; }
   .cta p { font-size: 17px; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
   .cta .btn { background: white; color: var(--primary); }
 
-  footer {
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    padding: 48px 24px 24px;
-    margin-top: 80px;
-  }
-
-  .footer-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 40px;
-    margin-bottom: 40px;
-  }
-
+  footer { background: var(--card); border-top: 1px solid var(--border); padding: 48px 24px 24px; margin-top: 80px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
   .footer-brand p { color: var(--muted); font-size: 14px; margin-top: 12px; max-width: 300px; }
   .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
   .footer-col ul { list-style: none; }
   .footer-col li { margin-bottom: 10px; }
   .footer-col a { color: var(--muted); text-decoration: none; font-size: 14px; }
   .footer-col a:hover { color: var(--primary); }
+  .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--muted); }
 
-  .footer-bottom {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  /* ====== AUTH SCREEN ====== */
+  /* ============ AUTH ============ */
   .auth-screen {
     min-height: 100vh;
     display: flex;
@@ -420,67 +293,16 @@
     background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,107,107,0.1));
   }
 
-  .auth-box {
-    background: var(--card);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-    width: 100%;
-    max-width: 420px;
-    border: 1px solid var(--border);
-  }
+  .auth-box { background: var(--card); padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); width: 100%; max-width: 420px; border: 1px solid var(--border); }
+  .auth-box h1 { font-size: 28px; font-weight: 800; color: var(--primary); text-align: center; margin-bottom: 8px; }
+  .auth-box .subtitle { text-align: center; color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+  .auth-tabs { display: flex; margin-bottom: 24px; background: var(--bg); border-radius: 10px; padding: 4px; }
+  .auth-tabs button { flex: 1; padding: 10px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-weight: 600; font-family: inherit; color: var(--muted); }
+  .auth-tabs button.active { background: var(--card); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-  .auth-box h1 {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--primary);
-    text-align: center;
-    margin-bottom: 8px;
-  }
-
-  .auth-box .subtitle {
-    text-align: center;
-    color: var(--muted);
-    margin-bottom: 24px;
-    font-size: 14px;
-  }
-
-  .auth-tabs {
-    display: flex;
-    margin-bottom: 24px;
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 4px;
-  }
-
-  .auth-tabs button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: inherit;
-    color: var(--muted);
-  }
-
-  .auth-tabs button.active {
-    background: var(--card);
-    color: var(--primary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
+  /* ============ FORMS ============ */
   .form-group { margin-bottom: 16px; }
-
-  .form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--muted);
-  }
-
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--muted); }
   .form-input {
     width: 100%;
     padding: 12px 16px;
@@ -492,201 +314,74 @@
     font-family: inherit;
     transition: border 0.2s;
   }
+  .form-input:focus { outline: none; border-color: var(--primary); }
+  textarea.form-input { resize: vertical; min-height: 80px; }
 
-  .form-input:focus {
-    outline: none;
-    border-color: var(--primary);
-  }
-
-  /* ====== APP ====== */
-  .app-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 100px 24px 40px;
-  }
-
+  /* ============ APP ============ */
+  .app-container { max-width: 1200px; margin: 0 auto; padding: 100px 24px 40px; }
   .page { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .page-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .page-subtitle { color: var(--muted); margin-bottom: 24px; }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .page-title {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 8px;
-  }
-
-  .page-subtitle {
-    color: var(--muted);
-    margin-bottom: 24px;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-  }
-
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
   .stat-card p:first-child { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
   .stat-card p:last-child { font-size: 24px; font-weight: 800; color: var(--primary); }
 
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-  }
-
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
   .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
 
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 
-  .task-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px;
-    background: var(--bg);
-    border-radius: 10px;
-    margin-bottom: 10px;
-    border-left: 3px solid var(--primary);
-  }
-
+  .task-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: var(--bg); border-radius: 10px; margin-bottom: 10px; border-left: 3px solid var(--primary); }
   .task-item.completed { opacity: 0.6; border-left-color: var(--success); }
-
   .task-item .task-info p:first-child { font-weight: 600; font-size: 15px; }
   .task-item .task-info p:last-child { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-  .task-badge {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: 700;
-    margin-left: 8px;
-  }
-
+  .task-badge { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 700; margin-left: 8px; }
   .task-actions { display: flex; gap: 6px; }
-
-  .task-actions button {
-    padding: 6px 12px;
-    font-size: 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: inherit;
-  }
-
+  .task-actions button { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; }
   .btn-done { background: var(--success); color: white; }
-  .btn-done:hover { opacity: 0.9; }
   .btn-delete { background: #FFE5E5; color: #D63031; }
 
-  textarea.form-input { resize: vertical; min-height: 100px; }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-  }
-
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
 
   /* Focus Timer */
-  .timer-display {
-    font-size: 80px;
-    font-weight: 800;
-    color: var(--primary);
-    text-align: center;
-    letter-spacing: -2px;
-    font-variant-numeric: tabular-nums;
-    margin: 20px 0;
-  }
-
+  .timer-display { font-size: 80px; font-weight: 800; color: var(--primary); text-align: center; letter-spacing: -2px; font-variant-numeric: tabular-nums; margin: 20px 0; }
   .timer-controls { display: flex; justify-content: center; gap: 12px; }
 
   /* Analytics */
-  .chart-container {
-    position: relative;
-    height: 280px;
-  }
+  .chart-container { position: relative; height: 280px; }
+  .ai-recommendation { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,107,107,0.1)); border: 1px solid var(--primary); border-radius: 12px; padding: 20px; font-size: 15px; }
 
-  .ai-recommendation {
-    background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,107,107,0.1));
-    border: 1px solid var(--primary);
-    border-radius: 12px;
-    padding: 20px;
-    font-size: 15px;
-  }
+  /* Exam countdown */
+  .exam-card { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg); border-radius: 12px; margin-bottom: 12px; border-left: 4px solid var(--secondary); }
+  .exam-card .days { font-size: 28px; font-weight: 800; color: var(--secondary); }
 
   /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: var(--primary);
-    color: white;
-    padding: 14px 24px;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    z-index: 9999;
-    animation: slideUp 0.3s ease;
-    font-weight: 600;
-  }
+  .toast { position: fixed; bottom: 30px; right: 30px; background: var(--primary); color: white; padding: 14px 24px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999; animation: slideUp 0.3s ease; font-weight: 600; }
+  @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-  @keyframes slideUp {
-    from { transform: translateY(100px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  /* Mobile nav */
-  .mobile-nav {
-    display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    z-index: 100;
-    padding: 8px;
-    justify-content: space-around;
-  }
-
-  .mobile-nav button {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 11px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-family: inherit;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-
+  /* Mobile Nav */
+  .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); z-index: 100; padding: 8px; justify-content: space-around; }
+  .mobile-nav button { background: none; border: none; color: var(--muted); font-size: 11px; padding: 8px 12px; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .mobile-nav button.active { color: var(--primary); }
   .mobile-nav button span:first-child { font-size: 20px; }
 
-  /* ====== RESPONSIVE ====== */
+  /* Achievements */
+  .achievement { padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block; margin: 4px; }
+  .ach-earned { background: #D5F5EE; color: #0B8A6E; }
+  .ach-locked { background: var(--bg); color: var(--muted); border: 1px dashed var(--border); }
+
+  /* Session list */
+  .session-item { padding: 10px 14px; background: var(--bg); border-radius: 8px; margin-bottom: 8px; font-size: 14px; display: flex; justify-content: space-between; }
+
+  /* ============ RESPONSIVE ============ */
   @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; padding-top: 120px; }
     .hero h1 { font-size: 42px; }
-    .hero-visual { order: -1; }
     .nav-links { display: none; }
     .footer-inner { grid-template-columns: 1fr 1fr; }
     .grid-2 { grid-template-columns: 1fr; }
@@ -707,7 +402,6 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
   .animate { opacity: 0; animation: fadeUp 0.8s ease forwards; }
   .delay-1 { animation-delay: 0.1s; }
   .delay-2 { animation-delay: 0.2s; }
@@ -717,7 +411,7 @@
 </head>
 <body>
 
-<!-- ====== NAVBAR (appears on both landing & app) ====== -->
+<!-- ============ NAVBAR ============ -->
 <nav>
   <div class="nav-inner">
     <a class="logo" onclick="goHome()">
@@ -725,7 +419,7 @@
       StudySmart AI
     </a>
     <ul class="nav-links" id="mainNav">
-      <li><a onclick="goHome()" href="#top">Home</a></li>
+      <li><a onclick="goHome()" style="cursor:pointer;">Home</a></li>
       <li><a href="#features" onclick="goHome()">Features</a></li>
       <li><a href="#how" onclick="goHome()">How It Works</a></li>
     </ul>
@@ -737,9 +431,8 @@
   </div>
 </nav>
 
-<!-- ====== LANDING PAGE ====== -->
+<!-- ============ LANDING PAGE ============ -->
 <div id="landingPage">
-
   <section class="hero" id="top">
     <div class="hero-content">
       <div class="hero-badge animate">✨ AI-Powered Study Planner</div>
@@ -757,23 +450,12 @@
     </div>
     <div class="hero-visual animate delay-2">
       <div class="mockup">
-        <div class="mockup-header">
-          <div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div>
-        </div>
+        <div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
         <div class="mockup-body">
           <div class="mockup-title">📚 Today's Study Plan</div>
-          <div class="mockup-card">
-            <div class="info"><p>Mathematics – Algebra</p><p>9:00 AM · 1 hour</p></div>
-            <span class="mockup-badge badge-high">High</span>
-          </div>
-          <div class="mockup-card">
-            <div class="info"><p>Physics – Kinematics</p><p>11:00 AM · 45 min</p></div>
-            <span class="mockup-badge badge-med">Medium</span>
-          </div>
-          <div class="mockup-card">
-            <div class="info"><p>Chemistry – Periodic Table</p><p>2:00 PM · 1 hour</p></div>
-            <span class="mockup-badge badge-done">Done</span>
-          </div>
+          <div class="mockup-card"><div class="info"><p>Mathematics – Algebra</p><p>9:00 AM · 1 hour</p></div><span class="mockup-badge badge-high">High</span></div>
+          <div class="mockup-card"><div class="info"><p>Physics – Kinematics</p><p>11:00 AM · 45 min</p></div><span class="mockup-badge badge-med">Medium</span></div>
+          <div class="mockup-card"><div class="info"><p>Chemistry – Periodic Table</p><p>2:00 PM · 1 hour</p></div><span class="mockup-badge badge-done">Done</span></div>
         </div>
       </div>
     </div>
@@ -781,33 +463,28 @@
 
   <section id="features">
     <div class="container">
-      <div class="section-header">
-        <div class="section-tag">Features</div>
-        <h2>Everything you need to succeed</h2>
-        <p>Powerful tools designed to help you plan, focus, and achieve your academic goals.</p>
-      </div>
+      <div class="section-header"><div class="section-tag">Features</div><h2>Everything you need to succeed</h2><p>Powerful tools to help you plan, focus, and achieve.</p></div>
       <div class="features-grid">
-        <div class="feature-card"><div class="feature-icon">📄</div><h3>Syllabus Parser</h3><p>Upload your syllabus PDF and let AI extract all chapters and topics automatically.</p></div>
-        <div class="feature-card"><div class="feature-icon">📅</div><h3>Smart Schedule</h3><p>Get a personalized study plan that adapts to your deadlines, difficulty, and priorities.</p></div>
-        <div class="feature-card"><div class="feature-icon">✅</div><h3>Task Manager</h3><p>Organize tasks with subjects, deadlines, difficulty levels, and priority badges.</p></div>
-        <div class="feature-card"><div class="feature-icon">⏱️</div><h3>Focus Timer</h3><p>Built-in Pomodoro timer to keep you focused with 25-minute study sessions.</p></div>
-        <div class="feature-card"><div class="feature-icon">📊</div><h3>Analytics</h3><p>Track your progress with charts, streaks, and personalized AI recommendations.</p></div>
-        <div class="feature-card"><div class="feature-icon">🌓</div><h3>Dark Mode</h3><p>Easy on the eyes with a beautiful dark theme for late-night study sessions.</p></div>
+        <div class="feature-card"><div class="feature-icon">📄</div><h3>Syllabus Parser</h3><p>Upload PDF or paste topics — AI extracts everything automatically.</p></div>
+        <div class="feature-card"><div class="feature-icon">📅</div><h3>Smart Schedule</h3><p>Personalized study plan with daily, weekly, and monthly views.</p></div>
+        <div class="feature-card"><div class="feature-icon">✅</div><h3>Task Manager</h3><p>Add, filter, sort, complete, and delete tasks with priorities.</p></div>
+        <div class="feature-card"><div class="feature-icon">⏱️</div><h3>Focus Timer</h3><p>Pomodoro timer with session history and skip option.</p></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><h3>Analytics</h3><p>4 live charts — subjects, status, trends, and priority.</p></div>
+        <div class="feature-card"><div class="feature-icon">📝</div><h3>Exam Countdown</h3><p>Never miss an exam with live day countdowns.</p></div>
+        <div class="feature-card"><div class="feature-icon">📤</div><h3>Export Reports</h3><p>Download progress as PDF or CSV.</p></div>
+        <div class="feature-card"><div class="feature-icon">🔔</div><h3>Reminders</h3><p>Get notified about upcoming deadlines and exams.</p></div>
+        <div class="feature-card"><div class="feature-icon">🌓</div><h3>Dark Mode</h3><p>Easy on the eyes for late-night study sessions.</p></div>
       </div>
     </div>
   </section>
 
   <section id="how" style="background: var(--card);">
     <div class="container">
-      <div class="section-header">
-        <div class="section-tag">How It Works</div>
-        <h2>Get started in 3 simple steps</h2>
-        <p>From syllabus to success in minutes.</p>
-      </div>
+      <div class="section-header"><div class="section-tag">How It Works</div><h2>Get started in 3 simple steps</h2></div>
       <div class="steps">
-        <div class="step"><div class="step-number">1</div><h3>Upload Syllabus</h3><p>Drop your syllabus PDF or paste your topics list. Our AI parses everything instantly.</p></div>
-        <div class="step"><div class="step-number">2</div><h3>Get Your Plan</h3><p>Receive a personalized schedule prioritized by deadline, difficulty, and importance.</p></div>
-        <div class="step"><div class="step-number">3</div><h3>Study & Track</h3><p>Use the focus timer, complete tasks, and watch your progress grow with analytics.</p></div>
+        <div class="step"><div class="step-number">1</div><h3>Upload Syllabus</h3><p>Paste your topics or upload a PDF file.</p></div>
+        <div class="step"><div class="step-number">2</div><h3>Get Your Plan</h3><p>AI creates a personalized study schedule.</p></div>
+        <div class="step"><div class="step-number">3</div><h3>Study & Track</h3><p>Focus, complete tasks, watch progress grow.</p></div>
       </div>
     </div>
   </section>
@@ -816,7 +493,7 @@
     <div class="container">
       <div class="cta">
         <h2>Ready to transform your study habits?</h2>
-        <p>Join students who are already studying smarter with StudySmart AI. It's completely free.</p>
+        <p>Join students already studying smarter with StudySmart AI. It's completely free.</p>
         <button class="btn" onclick="scrollToApp()">🎓 Get Started Free</button>
       </div>
     </div>
@@ -830,49 +507,30 @@
       </div>
       <div class="footer-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#how">How It Works</a></li></ul></div>
       <div class="footer-col"><h4>Resources</h4><ul><li><a href="#">Documentation</a></li><li><a href="#">FAQ</a></li></ul></div>
-      <div class="footer-col"><h4>Connect</h4><ul><li><a href="https://github.com/TvesaSingh/Study-Smart-AI">GitHub</a></li></ul></div>
+      <div class="footer-col"><h4>Connect</h4><ul><li><a href="https://github.com/TvesaSingh/Study-Smart-AI" target="_blank">GitHub</a></li></ul></div>
     </div>
-    <div class="footer-bottom">
-      <p>© 2026 StudySmart AI. All rights reserved.</p>
-      <p>Built with ❤️ for CEP 2026-27</p>
-    </div>
+    <div class="footer-bottom"><p>© 2026 StudySmart AI. All rights reserved.</p><p>Built with ❤️ for CEP 2026-27</p></div>
   </footer>
-
 </div>
 
-<!-- ====== AUTH SCREEN ====== -->
+<!-- ============ AUTH ============ -->
 <div id="authScreen" class="auth-screen hidden">
   <div class="auth-box">
     <h1>StudySmart AI</h1>
     <p class="subtitle">Plan. Focus. Achieve.</p>
-
     <div class="auth-tabs">
       <button id="loginTab" class="active" onclick="switchAuth('login')">Login</button>
       <button id="signupTab" onclick="switchAuth('signup')">Sign Up</button>
     </div>
-
-    <div class="form-group hidden" id="nameGroup">
-      <label>Full Name</label>
-      <input id="authName" class="form-input" placeholder="Your name"/>
-    </div>
-
-    <div class="form-group">
-      <label>Email</label>
-      <input id="authEmail" type="email" class="form-input" placeholder="you@example.com"/>
-    </div>
-
-    <div class="form-group">
-      <label>Password</label>
-      <input id="authPass" type="password" class="form-input" placeholder="••••••••"/>
-    </div>
-
+    <div class="form-group hidden" id="nameGroup"><label>Full Name</label><input id="authName" class="form-input" placeholder="Your name"/></div>
+    <div class="form-group"><label>Email</label><input id="authEmail" type="email" class="form-input" placeholder="you@example.com"/></div>
+    <div class="form-group"><label>Password</label><input id="authPass" type="password" class="form-input" placeholder="••••••••"/></div>
     <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="handleAuth()" id="authSubmitBtn">Login</button>
-
     <button class="btn btn-outline" style="width:100%; justify-content:center; margin-top:10px;" onclick="guestLogin()">Continue as Guest</button>
   </div>
 </div>
 
-<!-- ====== APP ====== -->
+<!-- ============ APP ============ -->
 <div id="app" class="hidden">
   <div class="app-container">
 
@@ -880,559 +538,22 @@
     <div id="page-dashboard" class="page">
       <h2 class="page-title">Welcome back, <span id="dashName">User</span>!</h2>
       <p class="page-subtitle" id="dashDate"></p>
-
       <div class="stats-grid">
         <div class="stat-card"><p>🔥 Streak</p><p id="statStreak">0 days</p></div>
         <div class="stat-card"><p>⏱️ Hours</p><p id="statHours">0h</p></div>
         <div class="stat-card"><p>✅ Tasks Done</p><p id="statTasks">0</p></div>
         <div class="stat-card"><p>📚 Subjects</p><p id="statSubjects">0</p></div>
       </div>
-
       <div class="grid-2">
-        <div class="card">
-          <h3>📅 Today's Tasks</h3>
-          <div id="todayTasks"></div>
-        </div>
-        <div class="card">
-          <h3>⏰ Upcoming Deadlines</h3>
-          <div id="upcomingTasks"></div>
-        </div>
+        <div class="card"><h3>📅 Today's Tasks</h3><div id="todayTasks"></div></div>
+        <div class="card"><h3>⏰ Upcoming Deadlines</h3><div id="upcomingTasks"></div></div>
       </div>
+      <div class="card"><h3>📝 Next Exam</h3><div id="nextExamCard"></div></div>
     </div>
 
     <!-- SYLLABUS -->
     <div id="page-syllabus" class="page hidden">
       <h2 class="page-title">Upload Syllabus</h2>
-      <p class="page-subtitle">Paste your topics — one per line. Use format "Subject: Topic".</p>
-
+      <p class="page-subtitle">Upload a PDF or paste topics — one per line, format "Subject: Topic".</p>
       <div class="card">
-        <textarea id="syllabusText" class="form-input" placeholder="Math: Algebra&#10;Math: Geometry&#10;Physics: Kinematics&#10;Chemistry: Periodic Table&#10;Computer: Data Structures"></textarea>
-        <button class="btn btn-primary" style="margin-top:16px;" onclick="parseSyllabus()">🤖 Parse & Generate Schedule</button>
-      </div>
-
-      <div id="parsedOutput"></div>
-    </div>
-
-    <!-- SCHEDULE -->
-    <div id="page-schedule" class="page hidden">
-      <h2 class="page-title">My Schedule</h2>
-      <p class="page-subtitle">Your personalized study plan.</p>
-      <div class="card"><div id="scheduleList"></div></div>
-    </div>
-
-    <!-- TASKS -->
-    <div id="page-tasks" class="page hidden">
-      <h2 class="page-title">Task Manager</h2>
-      <p class="page-subtitle">Add, complete, and manage your tasks.</p>
-
-      <div class="card">
-        <h3>➕ Add New Task</h3>
-        <div class="grid-2">
-          <div class="form-group"><label>Task Title</label><input id="tTitle" class="form-input" placeholder="e.g. Solve 10 algebra problems"/></div>
-          <div class="form-group"><label>Subject</label><input id="tSubject" class="form-input" placeholder="e.g. Math"/></div>
-          <div class="form-group"><label>Deadline</label><input id="tDeadline" type="date" class="form-input"/></div>
-          <div class="form-group"><label>Priority</label>
-            <select id="tPriority" class="form-input">
-              <option value="High">High</option>
-              <option value="Medium" selected>Medium</option>
-              <option value="Low">Low</option>
-            </select>
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="addTask()">Add Task</button>
-      </div>
-
-      <div id="taskList"></div>
-    </div>
-
-    <!-- FOCUS -->
-    <div id="page-focus" class="page hidden">
-      <h2 class="page-title">Focus Timer</h2>
-      <p class="page-subtitle">Pomodoro technique — 25 min focus, 5 min break.</p>
-
-      <div class="card" style="text-align:center;">
-        <p id="focusMode" style="color: var(--muted); font-weight: 600;">Focus Session</p>
-        <div class="timer-display" id="timerDisplay">25:00</div>
-        <div class="timer-controls">
-          <button class="btn btn-primary" id="timerBtn" onclick="toggleTimer()">Start</button>
-          <button class="btn btn-outline" onclick="resetTimer()">Reset</button>
-        </div>
-        <p style="margin-top:20px; color: var(--muted); font-size:14px;">Sessions today: <span id="sessionCount" style="color:var(--primary); font-weight:700;">0</span></p>
-      </div>
-    </div>
-
-    <!-- ANALYTICS -->
-    <div id="page-analytics" class="page hidden">
-      <h2 class="page-title">Analytics</h2>
-      <p class="page-subtitle">Track your progress and productivity.</p>
-
-      <div class="grid-2">
-        <div class="card"><h3>Tasks by Subject</h3><div class="chart-container"><canvas id="subjectChart"></canvas></div></div>
-        <div class="card"><h3>Task Status</h3><div class="chart-container"><canvas id="statusChart"></canvas></div></div>
-      </div>
-
-      <div class="card">
-        <h3>🤖 AI Recommendation</h3>
-        <div class="ai-recommendation" id="aiRecommendation">Add tasks to get recommendations.</div>
-      </div>
-    </div>
-
-    <!-- PROFILE -->
-    <div id="page-profile" class="page hidden">
-      <h2 class="page-title">Profile</h2>
-      <p class="page-subtitle">Manage your account and preferences.</p>
-
-      <div class="card">
-        <h3>Personal Info</h3>
-        <div class="form-group"><label>Name</label><input id="pName" class="form-input"/></div>
-        <div class="form-group"><label>Daily Study Target (hours)</label><input id="pHours" type="number" class="form-input"/></div>
-        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
-      </div>
-
-      <div class="card">
-        <h3>🏆 Achievements</h3>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <span style="padding:8px 14px; background:#D5F5EE; color:#0B8A6E; border-radius:20px; font-size:13px; font-weight:600;">First Task ✅</span>
-          <span style="padding:8px 14px; background:#E5E4FF; color:#5A52D4; border-radius:20px; font-size:13px; font-weight:600;">5 Tasks Done 🎯</span>
-          <span style="padding:8px 14px; background:#FFF4D6; color:#B8860B; border-radius:20px; font-size:13px; font-weight:600;">3-Day Streak 🔥</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- Mobile bottom nav -->
-<div class="mobile-nav hidden" id="mobileNav">
-  <button onclick="showPage('dashboard')" data-nav="dashboard"><span>🏠</span><span>Home</span></button>
-  <button onclick="showPage('syllabus')" data-nav="syllabus"><span>📄</span><span>Syllabus</span></button>
-  <button onclick="showPage('tasks')" data-nav="tasks"><span>✅</span><span>Tasks</span></button>
-  <button onclick="showPage('focus')" data-nav="focus"><span>⏱️</span><span>Focus</span></button>
-  <button onclick="showPage('analytics')" data-nav="analytics"><span>📊</span><span>Stats</span></button>
-</div>
-
-<script>
-/* ============ STATE ============ */
-let state = JSON.parse(localStorage.getItem('studysmart') || '{}');
-state.user = state.user || null;
-state.tasks = state.tasks || [];
-state.sessions = state.sessions || [];
-state.theme = state.theme || 'light';
-
-function save() { localStorage.setItem('studysmart', JSON.stringify(state)); }
-
-/* ============ THEME ============ */
-function toggleTheme() {
-  state.theme = state.theme === 'light' ? 'dark' : 'light';
-  save();
-  applyTheme();
-}
-function applyTheme() {
-  document.body.classList.toggle('dark', state.theme === 'dark');
-}
-applyTheme();
-
-/* ============ NAVIGATION ============ */
-function goHome() {
-  document.getElementById('landingPage').classList.remove('hidden');
-  document.getElementById('authScreen').classList.add('hidden');
-  document.getElementById('app').classList.add('hidden');
-  document.getElementById('mobileNav').classList.add('hidden');
-  window.scrollTo(0, 0);
-}
-
-function scrollToApp() {
-  document.getElementById('landingPage').classList.add('hidden');
-  if (state.user) {
-    enterApp();
-  } else {
-    document.getElementById('authScreen').classList.remove('hidden');
-  }
-  window.scrollTo(0, 0);
-}
-
-/* ============ AUTH ============ */
-let authMode = 'login';
-
-function switchAuth(mode) {
-  authMode = mode;
-  document.getElementById('loginTab').classList.toggle('active', mode === 'login');
-  document.getElementById('signupTab').classList.toggle('active', mode === 'signup');
-  document.getElementById('nameGroup').classList.toggle('hidden', mode === 'login');
-  document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Login' : 'Create Account';
-}
-
-function handleAuth() {
-  const name = document.getElementById('authName').value.trim();
-  const email = document.getElementById('authEmail').value.trim();
-  const pass = document.getElementById('authPass').value.trim();
-
-  if (!email || !pass) return toast('Please enter email and password');
-  if (authMode === 'signup' && !name) return toast('Please enter your name');
-
-  state.user = {
-    name: authMode === 'signup' ? name : email.split('@')[0],
-    email, hours: 4
-  };
-  save();
-  enterApp();
-  toast('Welcome, ' + state.user.name + '!');
-}
-
-function guestLogin() {
-  state.user = { name: 'Guest', email: 'guest@local', hours: 4 };
-  save();
-  enterApp();
-  toast('Logged in as Guest');
-}
-
-function logout() {
-  state.user = null;
-  save();
-  document.getElementById('app').classList.add('hidden');
-  document.getElementById('authScreen').classList.add('hidden');
-  document.getElementById('landingPage').classList.remove('hidden');
-  document.getElementById('mobileNav').classList.add('hidden');
-  document.getElementById('navLogoutBtn').classList.add('hidden');
-  document.getElementById('navAuthBtn').classList.remove('hidden');
-  window.scrollTo(0, 0);
-}
-
-/* ============ APP ENTRY ============ */
-function enterApp() {
-  document.getElementById('landingPage').classList.add('hidden');
-  document.getElementById('authScreen').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  document.getElementById('mobileNav').classList.remove('hidden');
-  document.getElementById('navAuthBtn').classList.add('hidden');
-  document.getElementById('navLogoutBtn').classList.remove('hidden');
-
-  document.getElementById('dashName').textContent = state.user.name;
-  document.getElementById('dashDate').textContent = new Date().toDateString();
-  document.getElementById('pName').value = state.user.name;
-  document.getElementById('pHours').value = state.user.hours || 4;
-
-  showPage('dashboard');
-  renderAll();
-}
-
-/* ============ PAGES ============ */
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-  const el = document.getElementById('page-' + page);
-  if (el) el.classList.remove('hidden');
-
-  document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
-  const navBtn = document.querySelector(`.mobile-nav button[data-nav="${page}"]`);
-  if (navBtn) navBtn.classList.add('active');
-
-  if (page === 'analytics') setTimeout(renderCharts, 50);
-  window.scrollTo(0, 0);
-}
-
-/* ============ TASKS ============ */
-function addTask() {
-  const title = document.getElementById('tTitle').value.trim();
-  const subject = document.getElementById('tSubject').value.trim() || 'General';
-  const deadline = document.getElementById('tDeadline').value;
-  const priority = document.getElementById('tPriority').value;
-
-  if (!title) return toast('Please enter a task title');
-
-  state.tasks.push({
-    id: Date.now(),
-    title, subject, deadline, priority,
-    status: 'Pending'
-  });
-  save();
-
-  document.getElementById('tTitle').value = '';
-  document.getElementById('tSubject').value = '';
-  document.getElementById('tDeadline').value = '';
-
-  toast('Task added!');
-  renderAll();
-}
-
-function toggleTask(id) {
-  const t = state.tasks.find(x => x.id === id);
-  if (!t) return;
-  t.status = t.status === 'Completed' ? 'Pending' : 'Completed';
-  save();
-  renderAll();
-}
-
-function deleteTask(id) {
-  state.tasks = state.tasks.filter(x => x.id !== id);
-  save();
-  renderAll();
-  toast('Task deleted');
-}
-
-/* ============ SYLLABUS PARSING ============ */
-function parseSyllabus() {
-  const text = document.getElementById('syllabusText').value.trim();
-  if (!text) return toast('Paste some topics first');
-
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  const subjects = {};
-
-  lines.forEach(line => {
-    if (line.includes(':')) {
-      const [sub, topic] = line.split(':').map(s => s.trim());
-      subjects[sub] = subjects[sub] || [];
-      subjects[sub].push(topic);
-    } else {
-      subjects['General'] = subjects['General'] || [];
-      subjects['General'].push(line);
-    }
-  });
-
-  let count = 0;
-  Object.entries(subjects).forEach(([sub, topics]) => {
-    topics.forEach((topic, i) => {
-      const deadline = new Date();
-      deadline.setDate(deadline.getDate() + (i + 1) * 2);
-      state.tasks.push({
-        id: Date.now() + Math.random(),
-        title: topic,
-        subject: sub,
-        deadline: deadline.toISOString().split('T')[0],
-        priority: i < 2 ? 'High' : 'Medium',
-        status: 'Pending'
-      });
-      count++;
-    });
-  });
-
-  save();
-  document.getElementById('parsedOutput').innerHTML = `
-    <div class="card" style="border-color: var(--success);">
-      <h3>✅ Parsed ${count} topics from ${Object.keys(subjects).length} subjects</h3>
-      <p style="color: var(--muted); margin-top:8px;">Tasks have been added to your Task Manager.</p>
-    </div>`;
-
-  toast(`Parsed ${count} topics!`);
-  renderAll();
-}
-
-/* ============ FOCUS TIMER ============ */
-let timerInterval = null;
-let timeLeft = 25 * 60;
-let isRunning = false;
-let mode = 'Focus';
-
-function updateTimerDisplay() {
-  const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-  const s = String(timeLeft % 60).padStart(2, '0');
-  document.getElementById('timerDisplay').textContent = `${m}:${s}`;
-}
-
-function toggleTimer() {
-  if (isRunning) {
-    clearInterval(timerInterval);
-    isRunning = false;
-    document.getElementById('timerBtn').textContent = 'Resume';
-  } else {
-    isRunning = true;
-    document.getElementById('timerBtn').textContent = 'Pause';
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      updateTimerDisplay();
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        isRunning = false;
-        completeSession();
-      }
-    }, 1000);
-  }
-}
-
-function resetTimer() {
-  clearInterval(timerInterval);
-  isRunning = false;
-  timeLeft = (mode === 'Focus' ? 25 : 5) * 60;
-  document.getElementById('timerBtn').textContent = 'Start';
-  updateTimerDisplay();
-}
-
-function completeSession() {
-  state.sessions.push({
-    id: Date.now(),
-    date: new Date().toISOString(),
-    duration: 25,
-    type: mode
-  });
-  save();
-
-  document.getElementById('sessionCount').textContent = state.sessions.filter(
-    s => s.date.startsWith(new Date().toISOString().split('T')[0])
-  ).length;
-
-  toast(mode + ' session complete! 🎉');
-
-  mode = mode === 'Focus' ? 'Break' : 'Focus';
-  document.getElementById('focusMode').textContent = mode + ' Session';
-  timeLeft = (mode === 'Focus' ? 25 : 5) * 60;
-  updateTimerDisplay();
-  document.getElementById('timerBtn').textContent = 'Start';
-  renderAll();
-}
-
-/* ============ RENDER ============ */
-function renderAll() {
-  if (!state.user) return;
-
-  const today = new Date().toISOString().split('T')[0];
-  const todaySessions = state.sessions.filter(s => s.date.startsWith(today));
-  const completedTasks = state.tasks.filter(t => t.status === 'Completed').length;
-
-  document.getElementById('statStreak').textContent = state.sessions.length > 0 ? Math.min(state.sessions.length, 7) + ' days' : '0 days';
-  document.getElementById('statHours').textContent = (state.sessions.length * 25 / 60).toFixed(1) + 'h';
-  document.getElementById('statTasks').textContent = completedTasks;
-  document.getElementById('statSubjects').textContent = [...new Set(state.tasks.map(t => t.subject))].length;
-
-  document.getElementById('sessionCount').textContent = todaySessions.length;
-
-  // Today's tasks
-  const todayTasks = state.tasks.filter(t => t.status === 'Pending').slice(0, 5);
-  document.getElementById('todayTasks').innerHTML = todayTasks.length
-    ? todayTasks.map(t => `
-      <div class="task-item">
-        <div class="task-info">
-          <p>${t.title}</p>
-          <p>${t.subject} • ${t.deadline || 'No deadline'}</p>
-        </div>
-        <span class="task-badge ${t.priority === 'High' ? 'badge-high' : t.priority === 'Medium' ? 'badge-med' : 'badge-done'}">${t.priority}</span>
-      </div>`).join('')
-    : '<div class="empty-state"><div class="icon">📝</div><p>No tasks yet. Add one!</p></div>';
-
-  // Upcoming
-  const upcoming = state.tasks
-    .filter(t => t.deadline && t.status !== 'Completed')
-    .sort((a, b) => a.deadline.localeCompare(b.deadline))
-    .slice(0, 5);
-
-  document.getElementById('upcomingTasks').innerHTML = upcoming.length
-    ? upcoming.map(t => `
-      <div class="task-item">
-        <div class="task-info">
-          <p>${t.title}</p>
-          <p>${t.subject}</p>
-        </div>
-        <span style="font-size:12px; color: var(--muted);">${t.deadline}</span>
-      </div>`).join('')
-    : '<div class="empty-state"><div class="icon">⏰</div><p>Nothing due soon.</p></div>';
-
-  // Schedule
-  document.getElementById('scheduleList').innerHTML = state.tasks.length
-    ? state.tasks.map(t => `
-      <div class="task-item ${t.status === 'Completed' ? 'completed' : ''}">
-        <div class="task-info">
-          <p>${t.title}</p>
-          <p>${t.subject} • ${t.deadline || 'No deadline'}</p>
-        </div>
-        <span class="task-badge ${t.status === 'Completed' ? 'badge-done' : 'badge-med'}">${t.status}</span>
-      </div>`).join('')
-    : '<div class="empty-state"><div class="icon">📅</div><p>No schedule yet. Upload a syllabus to generate one.</p></div>';
-
-  // Task list
-  document.getElementById('taskList').innerHTML = state.tasks.length
-    ? state.tasks.map(t => `
-      <div class="task-item ${t.status === 'Completed' ? 'completed' : ''}">
-        <div class="task-info">
-          <p>${t.title}</p>
-          <p>${t.subject} • ${t.deadline || 'No deadline'} • ${t.priority}</p>
-        </div>
-        <div class="task-actions">
-          <button class="btn-done" onclick="toggleTask(${t.id})">${t.status === 'Completed' ? 'Undo' : '✓ Done'}</button>
-          <button class="btn-delete" onclick="deleteTask(${t.id})">🗑</button>
-        </div>
-      </div>`).join('')
-    : '<div class="empty-state"><div class="icon">📋</div><p>No tasks yet. Add one above.</p></div>';
-
-  // AI recommendation
-  const pending = state.tasks.filter(t => t.status === 'Pending').length;
-  document.getElementById('aiRecommendation').textContent = state.tasks.length
-    ? `You have ${pending} pending and ${completedTasks} completed tasks. ${pending > completedTasks ? 'Focus on high-priority tasks first to reduce your workload.' : 'Great job! Keep up the momentum.'}`
-    : 'Add some tasks to get personalized recommendations.';
-}
-
-/* ============ CHARTS ============ */
-let subjectChart, statusChart;
-
-function renderCharts() {
-  const subjects = {};
-  state.tasks.forEach(t => subjects[t.subject] = (subjects[t.subject] || 0) + 1);
-
-  const ctx1 = document.getElementById('subjectChart');
-  if (!ctx1) return;
-  if (subjectChart) subjectChart.destroy();
-  subjectChart = new Chart(ctx1, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(subjects).length ? Object.keys(subjects) : ['No data'],
-      datasets: [{
-        label: 'Tasks',
-        data: Object.values(subjects).length ? Object.values(subjects) : [0],
-        backgroundColor: '#6C63FF',
-        borderRadius: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-    }
-  });
-
-  const statuses = { Pending: 0, Completed: 0 };
-  state.tasks.forEach(t => statuses[t.status] = (statuses[t.status] || 0) + 1);
-
-  const ctx2 = document.getElementById('statusChart');
-  if (statusChart) statusChart.destroy();
-  statusChart = new Chart(ctx2, {
-    type: 'doughnut',
-    data: {
-      labels: Object.keys(statuses),
-      datasets: [{
-        data: Object.values(statuses),
-        backgroundColor: ['#FFD93D', '#4ECDC4']
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } }
-    }
-  });
-}
-
-/* ============ PROFILE ============ */
-function saveProfile() {
-  state.user.name = document.getElementById('pName').value || state.user.name;
-  state.user.hours = parseInt(document.getElementById('pHours').value) || 4;
-  save();
-  document.getElementById('dashName').textContent = state.user.name;
-  toast('Profile saved!');
-}
-
-/* ============ TOAST ============ */
-function toast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
-}
-
-/* ============ INIT ============ */
-updateTimerDisplay();
-if (state.user) {
-  enterApp();
-}
-</script>
-
-</body>
-</html>
+        <div class="form-group"><label>📎 Upload PDF / TXT (
